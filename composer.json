@@ -1,0 +1,16 @@
+{
+    "name": "aivec/wordpress-router",
+    "description": "WordPress request router. Middleware handling and nonce checks included.",
+    "type": "library",
+    "license": "GPL-2.0-only",
+    "authors": [
+        {
+            "name": "Evan Shaw",
+            "email": "evandanielshaw@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {"Aivec\\WordPress\\Routing\\": ""}
+    }
+}
