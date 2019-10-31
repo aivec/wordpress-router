@@ -118,6 +118,106 @@ class Router extends Dispatcher {
     }
 
     /**
+     * Same as add but skips nonce verification.
+     *
+     * Useful for cross-origin request routing.
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @param string     $route
+     * @param string     $method or function
+     * @param mixed|null $model
+     * @param function[] $middlewares array of middleware functions
+     * @return void
+     */
+    public function addPublicRoute($route, $method, $model = null, $middlewares = []) {
+        if (isset($_POST[$this->ajax_namespace]) && !empty($_POST[$this->ajax_namespace])) {
+            if (isset($_POST['route'])) {
+                if ($_POST['route'] === $route) {
+                    $payload = $this->getJsonPayload();
+                    foreach ($middlewares as $middleware) {
+                        $middleware($payload);
+                    }
+                    $this->processAJAX($method, $model, $payload);
+                }
+            }
+        }
+
+        if (isset($_POST[$this->post_namespace]) && !empty($_POST[$this->post_namespace])) {
+            if (isset($_POST['route'])) {
+                if ($_POST['route'] === $route) {
+                    $payload = $this->getJsonPayload();
+                    foreach ($middlewares as $middleware) {
+                        $middleware($payload);
+                    }
+                    $this->processPOST($method, $model, $payload);
+                }
+            }
+        }
+    }
+
+    /**
+     * Handles redirects from other origins
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @param string     $url
+     * @param string     $method or function
+     * @param mixed|null $model
+     * @param array      $getkey_conditions
+     * @param array      $getkeyval_conditions
+     * @param function[] $middlewares array of middleware functions
+     * @return void
+     */
+    public function addRedirectRoute(
+        $url,
+        $method,
+        $model = null,
+        $getkey_conditions = [],
+        $getkeyval_conditions = [],
+        $middlewares = []
+    ) {
+        $redirected = false;
+        $redirect_url = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : '';
+        $redirect_fullpath = isset($_SERVER['REDIRECT_URI']) ? $_SERVER['REDIRECT_URI'] : '';
+        if (!empty($redirect_url)) {
+            if ($redirect_url === $url) {
+                $redirected = true;
+            }
+        } elseif (!empty($redirect_fullpath)) {
+            if (strpos($redirect_fullpath, $url) !== false) {
+                $redirected = true;
+            }
+        }
+
+        if ($redirected === false) {
+            return;
+        }
+
+        foreach ($getkey_conditions as $getkey) {
+            $getval = isset($_GET[$getkey]) ? $_GET[$getkey] : null;
+            if ($getval === null) {
+                return;
+            }
+        }
+
+        foreach ($getkeyval_conditions as $getkey => $val) {
+            $getval = isset($_GET[$getkey]) ? $_GET[$getkey] : null;
+            if ($getval === $val) {
+                return;
+            }
+        }
+
+        foreach ($middlewares as $middleware) {
+            $middleware($_GET);
+        }
+
+        if ($model === null) {
+            call_user_func($method, $_GET);
+        } else {
+            $model->{$method}($_GET);
+        }
+    }
+
+    /**
      * Decodes JSON body if set. Returns null if not set
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
