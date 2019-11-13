@@ -176,14 +176,14 @@ class Router extends Dispatcher {
         $middlewares = []
     ) {
         $redirected = false;
-        $redirect_url = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : '';
+        $redirect_uri = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : '';
         $redirect_fullpath = isset($_SERVER['REDIRECT_URI']) ? $_SERVER['REDIRECT_URI'] : '';
-        if (!empty($redirect_url)) {
-            if ($redirect_url === $url) {
+        if (!empty($redirect_uri)) {
+            if (strpos($url, $redirect_uri) !== false) {
                 $redirected = true;
             }
         } elseif (!empty($redirect_fullpath)) {
-            if (strpos($redirect_fullpath, $url) !== false) {
+            if (strpos($url, $redirect_fullpath) !== false) {
                 $redirected = true;
             }
         }
