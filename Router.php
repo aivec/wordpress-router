@@ -81,12 +81,21 @@ class Router extends Dispatcher {
      * @param string     $method or function
      * @param mixed|null $model
      * @param function[] $middlewares array of middleware functions
+     * @param string     $namespace namespace of route. allows routes with same name
+     *                              to be differentiated from one another
      * @return void
      */
-    public function add($route, $method, $model = null, $middlewares = []) {
+    public function add(
+        $route,
+        $method,
+        $model = null,
+        $middlewares = [],
+        $namespace = 'default'
+    ) {
         if (isset($_POST[$this->ajax_namespace]) && !empty($_POST[$this->ajax_namespace])) {
             if (isset($_POST['route'])) {
-                if ($_POST['route'] === $route) {
+                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
+                if ($_POST['route'] === $route && $n === $namespace) {
                     check_ajax_referer($this->nonce_name, $this->nonce_key);
                     $payload = $this->getJsonPayload();
                     foreach ($middlewares as $middleware) {
@@ -99,7 +108,8 @@ class Router extends Dispatcher {
 
         if (isset($_POST[$this->post_namespace]) && !empty($_POST[$this->post_namespace])) {
             if (isset($_POST['route'])) {
-                if ($_POST['route'] === $route) {
+                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
+                if ($_POST['route'] === $route && $n === $namespace) {
                     $nonce = '';
                     if (isset($_REQUEST[$this->nonce_key])) {
                         $nonce = sanitize_text_field(wp_unslash($_REQUEST[$this->nonce_key]));
@@ -127,12 +137,21 @@ class Router extends Dispatcher {
      * @param string     $method or function
      * @param mixed|null $model
      * @param function[] $middlewares array of middleware functions
+     * @param string     $namespace namespace of route. allows routes with same name
+     *                              to be differentiated from one another
      * @return void
      */
-    public function addPublicRoute($route, $method, $model = null, $middlewares = []) {
+    public function addPublicRoute(
+        $route,
+        $method,
+        $model = null,
+        $middlewares = [],
+        $namespace = 'default'
+    ) {
         if (isset($_POST[$this->ajax_namespace]) && !empty($_POST[$this->ajax_namespace])) {
             if (isset($_POST['route'])) {
-                if ($_POST['route'] === $route) {
+                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
+                if ($_POST['route'] === $route && $n === $namespace) {
                     $payload = $this->getJsonPayload();
                     foreach ($middlewares as $middleware) {
                         $middleware($payload);
@@ -144,7 +163,8 @@ class Router extends Dispatcher {
 
         if (isset($_POST[$this->post_namespace]) && !empty($_POST[$this->post_namespace])) {
             if (isset($_POST['route'])) {
-                if ($_POST['route'] === $route) {
+                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
+                if ($_POST['route'] === $route && $n === $namespace) {
                     $payload = $this->getJsonPayload();
                     foreach ($middlewares as $middleware) {
                         $middleware($payload);
