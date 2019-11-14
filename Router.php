@@ -260,17 +260,70 @@ class Router extends Dispatcher {
      * Creates a POST form with a given route and inner html if provided
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param string $route
-     * @param string $innerhtml
+     * @param string      $route
+     * @param string      $innerhtml
+     * @param string      $namespace route namespace
+     * @param string      $url
+     * @param string|null $formid
      * @return string
      */
-    public function createPostForm($route, $innerhtml = '') {
+    public function createPostForm(
+        $route,
+        $innerhtml = '',
+        $namespace = 'default',
+        $url = '',
+        $formid = null
+    ) {
         ob_start();
+        $id = $formid !== null ? ' id="' . esc_attr($formid) . '"' : '';
+        $url = !empty($url) ? $url : site_url();
         ?>
-        <form action="<?php echo site_url() ?>" method="post">
+        <form action="<?php echo esc_url($url) ?>" method="post"<?php echo $id?>>
             <?php echo $this->nonce_field; ?>
             <input type="hidden" name="<?php echo $this->post_namespace ?>" value="1" />
             <input type="hidden" name="route" value="<?php echo $route ?>" />
+            <input type="hidden" name="namespace" value="<?php echo $namespace ?>" />
+            <?php echo $innerhtml ?>
+        </form>
+        <?php
+        $html = ob_get_contents();
+        ob_end_clean();
+
+        return $html;
+    }
+
+    /**
+     * Creates a POST form with a given route and inner html if provided
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @param string      $route
+     * @param string      $innerhtml
+     * @param string      $namespace route namespace
+     * @param string      $url
+     * @param string|null $formid
+     * @return string
+     */
+    public function createPostFormNoHiddenFieldID(
+        $route,
+        $innerhtml = '',
+        $namespace = 'default',
+        $url = '',
+        $formid = null
+    ) {
+        ob_start();
+        $id = $formid !== null ? ' id="' . esc_attr($formid) . '"' : '';
+        $url = !empty($url) ? $url : site_url();
+        ?>
+        <form action="<?php echo esc_url($url) ?>" method="post"<?php echo $id?>>
+            <input
+                type="hidden"
+                name="<?php echo esc_attr($this->nonce_key) ?>"
+                value="<?php echo wp_create_nonce($this->nonce_name) ?>"
+            />
+            <?php wp_referer_field(true); ?>
+            <input type="hidden" name="<?php echo $this->post_namespace ?>" value="1" />
+            <input type="hidden" name="route" value="<?php echo $route ?>" />
+            <input type="hidden" name="namespace" value="<?php echo $namespace ?>" />
             <?php echo $innerhtml ?>
         </form>
         <?php
@@ -294,5 +347,50 @@ class Router extends Dispatcher {
             'ajaxNamespace' => $this->ajax_namespace,
             'postNamespace' => $this->post_namespace,
         );
+    }
+
+    /**
+     * Getter for nonce_key
+     *
+     * @return string
+     */
+    public function getNonceKey() {
+        return $this->nonce_key;
+    }
+
+    /**
+     * Getter for nonce
+     *
+     * @return string
+     */
+    public function getNonce() {
+        return $this->nonce;
+    }
+
+    /**
+     * Getter for nonce_field
+     *
+     * @return string
+     */
+    public function getNonceField() {
+        return $this->nonce_field;
+    }
+
+    /**
+     * Getter for ajax_namespace
+     *
+     * @return string
+     */
+    public function getAjaxNamespace() {
+        return $this->ajax_namespace;
+    }
+
+    /**
+     * Getter for post_namespace
+     *
+     * @return string
+     */
+    public function getPostNamespace() {
+        return $this->post_namespace;
     }
 }
