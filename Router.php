@@ -92,10 +92,10 @@ class Router extends Dispatcher {
         $middlewares = [],
         $namespace = 'default'
     ) {
-        if (isset($_POST[$this->ajax_namespace]) && !empty($_POST[$this->ajax_namespace])) {
-            if (isset($_POST['route'])) {
-                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
-                if ($_POST['route'] === $route && $n === $namespace) {
+        if (isset($_REQUEST[$this->ajax_namespace]) && !empty($_REQUEST[$this->ajax_namespace])) {
+            if (isset($_REQUEST['route'])) {
+                $n = isset($_REQUEST['namespace']) ? $_REQUEST['namespace'] : $namespace;
+                if ($_REQUEST['route'] === $route && $n === $namespace) {
                     check_ajax_referer($this->nonce_name, $this->nonce_key);
                     $payload = $this->getJsonPayload();
                     foreach ($middlewares as $middleware) {
@@ -106,10 +106,10 @@ class Router extends Dispatcher {
             }
         }
 
-        if (isset($_POST[$this->post_namespace]) && !empty($_POST[$this->post_namespace])) {
-            if (isset($_POST['route'])) {
-                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
-                if ($_POST['route'] === $route && $n === $namespace) {
+        if (isset($_REQUEST[$this->post_namespace]) && !empty($_REQUEST[$this->post_namespace])) {
+            if (isset($_REQUEST['route'])) {
+                $n = isset($_REQUEST['namespace']) ? $_REQUEST['namespace'] : $namespace;
+                if ($_REQUEST['route'] === $route && $n === $namespace) {
                     $nonce = '';
                     if (isset($_REQUEST[$this->nonce_key])) {
                         $nonce = sanitize_text_field(wp_unslash($_REQUEST[$this->nonce_key]));
@@ -148,10 +148,10 @@ class Router extends Dispatcher {
         $middlewares = [],
         $namespace = 'default'
     ) {
-        if (isset($_POST[$this->ajax_namespace]) && !empty($_POST[$this->ajax_namespace])) {
-            if (isset($_POST['route'])) {
-                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
-                if ($_POST['route'] === $route && $n === $namespace) {
+        if (isset($_REQUEST[$this->ajax_namespace]) && !empty($_REQUEST[$this->ajax_namespace])) {
+            if (isset($_REQUEST['route'])) {
+                $n = isset($_REQUEST['namespace']) ? $_REQUEST['namespace'] : $namespace;
+                if ($_REQUEST['route'] === $route && $n === $namespace) {
                     $payload = $this->getJsonPayload();
                     foreach ($middlewares as $middleware) {
                         $middleware($payload);
@@ -161,10 +161,10 @@ class Router extends Dispatcher {
             }
         }
 
-        if (isset($_POST[$this->post_namespace]) && !empty($_POST[$this->post_namespace])) {
-            if (isset($_POST['route'])) {
-                $n = isset($_POST['namespace']) ? $_POST['namespace'] : $namespace;
-                if ($_POST['route'] === $route && $n === $namespace) {
+        if (isset($_REQUEST[$this->post_namespace]) && !empty($_REQUEST[$this->post_namespace])) {
+            if (isset($_REQUEST['route'])) {
+                $n = isset($_REQUEST['namespace']) ? $_REQUEST['namespace'] : $namespace;
+                if ($_REQUEST['route'] === $route && $n === $namespace) {
                     $payload = $this->getJsonPayload();
                     foreach ($middlewares as $middleware) {
                         $middleware($payload);
@@ -244,7 +244,7 @@ class Router extends Dispatcher {
      * @return array|null
      */
     public function getJsonPayload() {
-        $body = isset($_POST['payload']) ? $_POST['payload'] : null;
+        $body = isset($_REQUEST['payload']) ? $_REQUEST['payload'] : null;
         if (empty($body)) {
             $body = null;
         }
@@ -254,6 +254,32 @@ class Router extends Dispatcher {
         }
 
         return $payload;
+    }
+
+    /**
+     * Create query url for GET request
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @param string  $route
+     * @param string  $namespace defaults to 'default'
+     * @param string  $url defaults to site_url()
+     * @param boolean $ajax defaults to false
+     * @return string
+     */
+    public function createQueryUrl($route, $namespace = '', $url = '', $ajax = false) {
+        $query = [
+            $this->nonce_key => $this->nonce,
+            'namespace' => !empty($namespace) ? $namespace : 'default',
+            'route' => $route,
+        ];
+        if ($ajax === true) {
+            $query[$this->ajax_namespace] = 1;
+        } else {
+            $query[$this->post_namespace] = 1;
+        }
+        $url = !empty($url) ? $url : site_url();
+
+        return add_query_arg($query, $url);
     }
 
     /**
@@ -367,6 +393,15 @@ class Router extends Dispatcher {
         return $this->nonce;
     }
 
+    /**
+     * Getter for nonce_name
+     *
+     * @return string
+     */
+    public function getNonceName() {
+        return $this->nonce_name;
+    }
+    
     /**
      * Getter for nonce_field
      *
