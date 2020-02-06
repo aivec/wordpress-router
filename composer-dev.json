@@ -1,0 +1,42 @@
+{
+  "name": "aivec/wordpress-router",
+  "description": "WordPress request router. Middleware handling and nonce checks included.",
+  "type": "library",
+  "license": "GPL-2.0-only",
+  "authors": [
+    {
+      "name": "Evan Shaw",
+      "email": "evandanielshaw@gmail.com"
+    }
+  ],
+  "require": {
+    "nikic/fast-route": "^1.3"
+  },
+  "extra": {
+    "mozart": {
+      "dep_namespace": "AWR\\",
+      "dep_directory": "/dist/AWR/",
+      "classmap_directory": "/dist/classes/",
+      "classmap_prefix": "AWR_",
+      "packages": ["nikic/fast-route"]
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "if [ -e 'vendor/bin' ]; then rm -r vendor/nikic; fi",
+      "if [ -e 'vendor/bin' ]; then rm -r vendor/bin; fi",
+      "if [ -e 'vendor/bin' ]; then rm -r vendor/classes; fi",
+      "composer dump-autoload --optimize"
+    ]
+  },
+  "autoload": {
+    "psr-4": {
+      "AWR\\": "dist/AWR",
+      "Aivec\\WordPress\\Routing\\": ""
+    }
+  },
+  "require-dev": {
+    "aivec/phpcs-wp": "^1.0",
+    "coenjacobs/mozart": "^0.5.1"
+  }
+}
