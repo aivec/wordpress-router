@@ -501,6 +501,19 @@ class Router {
     }
 
     /**
+     * Returns routes_namespace appended to the site base URL
+     *
+     * Note that since this method uses WordPress' `get_home_url()` function,
+     * this method cannot be called before WordPress core functions are loaded
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return string
+     */
+    public function getApiEndpoint() {
+        return get_home_url(null, $this->routes_namespace);
+    }
+
+    /**
      * Getter for route_namespace
      *
      * @return string
