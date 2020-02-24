@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'FastRoute\\' => array($vendorDir . '/nikic/fast-route/src'),
-    'Aivec\\WordPress\\Routing\\' => array($baseDir . '/'),
+    'Aivec\\WordPress\\Routing\\' => array($baseDir . '/src'),
     'AWR\\' => array($baseDir . '/dist/AWR'),
 );

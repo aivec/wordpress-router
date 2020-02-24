@@ -9,34 +9,32 @@
       "email": "evandanielshaw@gmail.com"
     }
   ],
-  "require": {
-    "nikic/fast-route": "^1.3"
-  },
   "extra": {
     "mozart": {
       "dep_namespace": "AWR\\",
       "dep_directory": "/dist/AWR/",
       "classmap_directory": "/dist/classes/",
       "classmap_prefix": "AWR_",
-      "packages": ["nikic/fast-route"]
+      "packages": [
+        "nikic/fast-route"
+      ]
     }
   },
   "scripts": {
-    "post-install-cmd": [
-      "if [ -e 'vendor/bin' ]; then rm -r vendor/nikic; fi",
+    "build": [
+      "if [ -e 'vendor/nikic' ]; then rm -r vendor/nikic; fi",
       "if [ -e 'vendor/bin' ]; then rm -r vendor/bin; fi",
-      "if [ -e 'vendor/bin' ]; then rm -r vendor/classes; fi",
       "composer dump-autoload --optimize"
     ]
   },
   "autoload": {
     "psr-4": {
       "AWR\\": "dist/AWR",
-      "Aivec\\WordPress\\Routing\\": ""
+      "Aivec\\WordPress\\Routing\\": "src"
     }
   },
   "require-dev": {
     "aivec/phpcs-wp": "^1.0",
-    "coenjacobs/mozart": "^0.5.1"
+    "aivec/codecept-docker": "^0.0.1"
   }
 }

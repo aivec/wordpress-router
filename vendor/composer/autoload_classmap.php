@@ -6,4 +6,22 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'AWR\\FastRoute\\BadRouteException' => $baseDir . '/dist/AWR/FastRoute/BadRouteException.php',
+    'AWR\\FastRoute\\DataGenerator' => $baseDir . '/dist/AWR/FastRoute/DataGenerator.php',
+    'AWR\\FastRoute\\DataGenerator\\CharCountBased' => $baseDir . '/dist/AWR/FastRoute/DataGenerator/CharCountBased.php',
+    'AWR\\FastRoute\\DataGenerator\\GroupCountBased' => $baseDir . '/dist/AWR/FastRoute/DataGenerator/GroupCountBased.php',
+    'AWR\\FastRoute\\DataGenerator\\GroupPosBased' => $baseDir . '/dist/AWR/FastRoute/DataGenerator/GroupPosBased.php',
+    'AWR\\FastRoute\\DataGenerator\\MarkBased' => $baseDir . '/dist/AWR/FastRoute/DataGenerator/MarkBased.php',
+    'AWR\\FastRoute\\DataGenerator\\RegexBasedAbstract' => $baseDir . '/dist/AWR/FastRoute/DataGenerator/RegexBasedAbstract.php',
+    'AWR\\FastRoute\\Dispatcher' => $baseDir . '/dist/AWR/FastRoute/Dispatcher.php',
+    'AWR\\FastRoute\\Dispatcher\\CharCountBased' => $baseDir . '/dist/AWR/FastRoute/Dispatcher/CharCountBased.php',
+    'AWR\\FastRoute\\Dispatcher\\GroupCountBased' => $baseDir . '/dist/AWR/FastRoute/Dispatcher/GroupCountBased.php',
+    'AWR\\FastRoute\\Dispatcher\\GroupPosBased' => $baseDir . '/dist/AWR/FastRoute/Dispatcher/GroupPosBased.php',
+    'AWR\\FastRoute\\Dispatcher\\MarkBased' => $baseDir . '/dist/AWR/FastRoute/Dispatcher/MarkBased.php',
+    'AWR\\FastRoute\\Dispatcher\\RegexBasedAbstract' => $baseDir . '/dist/AWR/FastRoute/Dispatcher/RegexBasedAbstract.php',
+    'AWR\\FastRoute\\Route' => $baseDir . '/dist/AWR/FastRoute/Route.php',
+    'AWR\\FastRoute\\RouteCollector' => $baseDir . '/dist/AWR/FastRoute/RouteCollector.php',
+    'AWR\\FastRoute\\RouteParser' => $baseDir . '/dist/AWR/FastRoute/RouteParser.php',
+    'AWR\\FastRoute\\RouteParser\\Std' => $baseDir . '/dist/AWR/FastRoute/RouteParser/Std.php',
+    'Aivec\\WordPress\\Routing\\Router' => $baseDir . '/src/Router.php',
 );

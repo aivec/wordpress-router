@@ -142,7 +142,7 @@ $form = $routes->createPostForm(
 ## Contributing
 Using a special development-only `composer-dev.json` is required when building this library. Use the below command each time **BEFORE YOU COMMIT**
 ```bash
-$ export COMPOSER=composer-dev.json && composer install --no-dev
+$ export COMPOSER=composer-dev.json && composer install --no-dev && composer build
 ```
 ### Why are the `vendor` and `dist` directories version controlled?
 Because this library packages a namespaced version of `FastRoute`, and the tool for accomplishing this, [mozart](github.com/coenjacobs/mozart), cannot do it automatically.

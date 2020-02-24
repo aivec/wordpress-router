@@ -11,7 +11,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Aivec\\WordPress\\Routing\\": ""
+      "Aivec\\WordPress\\Routing\\": "src"
     }
   }
 }
