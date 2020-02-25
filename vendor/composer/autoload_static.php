@@ -43,6 +43,7 @@ class ComposerStaticInitbb28550d3cde08758a8b1fa94ed98f08
         'AWR\\FastRoute\\RouteCollector' => __DIR__ . '/../..' . '/dist/AWR/FastRoute/RouteCollector.php',
         'AWR\\FastRoute\\RouteParser' => __DIR__ . '/../..' . '/dist/AWR/FastRoute/RouteParser.php',
         'AWR\\FastRoute\\RouteParser\\Std' => __DIR__ . '/../..' . '/dist/AWR/FastRoute/RouteParser/Std.php',
+        'Aivec\\WordPress\\Routing\\PostIdRouter' => __DIR__ . '/../..' . '/src/PostIdRouter.php',
         'Aivec\\WordPress\\Routing\\Router' => __DIR__ . '/../..' . '/src/Router.php',
     );
 

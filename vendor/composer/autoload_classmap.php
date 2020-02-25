@@ -23,5 +23,6 @@ return array(
     'AWR\\FastRoute\\RouteCollector' => $baseDir . '/dist/AWR/FastRoute/RouteCollector.php',
     'AWR\\FastRoute\\RouteParser' => $baseDir . '/dist/AWR/FastRoute/RouteParser.php',
     'AWR\\FastRoute\\RouteParser\\Std' => $baseDir . '/dist/AWR/FastRoute/RouteParser/Std.php',
+    'Aivec\\WordPress\\Routing\\PostIdRouter' => $baseDir . '/src/PostIdRouter.php',
     'Aivec\\WordPress\\Routing\\Router' => $baseDir . '/src/Router.php',
 );
