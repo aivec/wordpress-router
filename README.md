@@ -2,7 +2,7 @@
 This package provides a routing library for WordPress with WordPress specific wrappers such as nonce verification and admin role checking. The backbone of this package uses [FastRoute](https://github.com/nikic/FastRoute), a small and succinct route resolver. `FastRoute` is also the route resolver used by the popular micro-framework [Slim](http://www.slimframework.com/).
 
 ## The Problem
-Routing in WordPress is terrible. It relies solely on `$_POST` object keys to resolve routes if you go with their traditional way of registering AJAX handlers. You could use WordPress' relatively new [REST APIs](https://developer.wordpress.org/rest-api/), but I've foregone that option because it requires that you [know the permalink settings upfront](https://developer.wordpress.org/rest-api/key-concepts/). It also doesn't provide generic middleware handling, instead opting to provide only 'validate' and 'sanitize' callbacks. They also use large options arrays as arguments to functions rather than providing named methods (why do they always do this? You get *NO intellisense* with this approach). I also have a number of personal gripes with WP standards... (not PSR-4 compliant, absolutely dreadful styling rules, etc.)
+Routing in WordPress is a pain for plugin authors. It relies solely on `$_POST` object keys to resolve routes if you go with their traditional way of registering AJAX handlers via `admin-ajax.php`. You could use WordPress' relatively new [REST APIs](https://developer.wordpress.org/rest-api/), but I've foregone that option because you don't have control of *when* routes are resolved. This is important to developers who create extensions for other plugins where the load order is out of their control. This package also differs from WordPress' implementation in that it doesn't provide `validate` and `sanitize` callbacks, opting instead for generic middleware handling.
 
 ## Installation
 Install with [composer](https://getcomposer.org/):
@@ -140,11 +140,7 @@ $form = $routes->createPostForm(
 ```
 
 ## Contributing
-Using a special development-only `composer-dev.json` is required when building this library. Use the below command each time **BEFORE YOU COMMIT**
-```bash
-$ export COMPOSER=composer-dev.json && composer install --no-dev && composer build
-```
-### Why are the `vendor` and `dist` directories version controlled?
+### Why is the `dist` directory version controlled?
 Because this library packages a namespaced version of `FastRoute`, and the tool for accomplishing this, [mozart](github.com/coenjacobs/mozart), cannot do it automatically.
 
 Long answer: when this library is included as a composer dependency in another project that uses `mozart`, `mozart` will attempt to recursively namespace this package, *as well as this packages dependencies*. In this case, that dependency is `FastRoute`. Even though `mozart` can successfully bundle certain packages without any manual tweaks, unfortunately `FastRoute` is not one such package. Because of this, we have to package an already bundled version of `FastRoute` and make sure that our `composer.json` does not include an autoload reference to it. Only then is it possible to require this package from another plugin/package that uses `mozart` without any manual changes.
