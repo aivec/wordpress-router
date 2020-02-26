@@ -12,8 +12,8 @@
   "extra": {
     "mozart": {
       "dep_namespace": "AWR\\",
-      "dep_directory": "/src/dist/AWR/",
-      "classmap_directory": "/src/dist/classes/",
+      "dep_directory": "/dist/AWR/",
+      "classmap_directory": "/dist/classes/",
       "classmap_prefix": "AWR_",
       "packages": [
         "nikic/fast-route"
@@ -35,9 +35,7 @@
   "require-dev": {
     "aivec/phpcs-wp": "^1.0",
     "aivec/codecept-docker": "^0.0.1",
-    "coenjacobs/mozart": "^0.5.1"
-  },
-  "require": {
+    "coenjacobs/mozart": "^0.5.1",
     "nikic/fast-route": "^1.3"
   }
 }
