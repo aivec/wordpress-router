@@ -130,6 +130,7 @@ class Router {
      * @param callable[]               $aftermiddlewares array of callables to be invoked after
      *                                                   the route callable returns
      * @param boolean                  $noncecheck
+     * @param string                   $role role to check for the current user
      * @return void
      */
     public function add(
@@ -139,15 +140,32 @@ class Router {
         callable $callable,
         array $middlewares = [],
         array $aftermiddlewares = [],
-        $noncecheck = false
+        $noncecheck = false,
+        $role = ''
     ) {
-        $r->addRoute($method, $route, function ($args) use ($middlewares, $aftermiddlewares, $callable, $noncecheck) {
+        $r->addRoute($method, $route, function ($args) use (
+            $middlewares,
+            $aftermiddlewares,
+            $callable,
+            $noncecheck,
+            $role
+        ) {
             if ($noncecheck === true) {
                 check_ajax_referer($this->nonce_name, $this->nonce_key);
             }
+            if (!empty($role)) {
+                $user = wp_get_current_user();
+                if (!in_array(strtolower($role), (array)$user->roles, true)) {
+                    http_response_code(403);
+                    die(-1);
+                }
+            }
             $payload = $this->getJsonPayload();
             foreach ($middlewares as $middleware) {
-                call_user_func($middleware, $args, $payload);
+                $res = call_user_func($middleware, $args, $payload);
+                if (!empty($res)) {
+                    die($res);
+                }
             }
             $res = call_user_func($callable, $args, $payload);
             foreach ($aftermiddlewares as $afterm) {
@@ -158,6 +176,126 @@ class Router {
             }
             die($res);
         });
+    }
+
+    /**
+     * Adds a nonce verified administrator route
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @see self::add()
+     * @param FastRoute\RouteCollector $r
+     * @param string|string[]          $method GET, POST, PUT, etc.
+     * @param string                   $route
+     * @param callable                 $callable class method or function
+     * @param callable[]               $middlewares
+     * @param callable[]               $aftermiddlewares
+     * @return void
+     */
+    public function addAdministratorRoute(
+        FastRoute\RouteCollector $r,
+        $method,
+        $route,
+        callable $callable,
+        array $middlewares = [],
+        array $aftermiddlewares = []
+    ) {
+        $this->add($r, $method, $route, $callable, $middlewares, $aftermiddlewares, true, 'administrator');
+    }
+
+    /**
+     * Adds a nonce verified editor route
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @see self::add()
+     * @param FastRoute\RouteCollector $r
+     * @param string|string[]          $method GET, POST, PUT, etc.
+     * @param string                   $route
+     * @param callable                 $callable class method or function
+     * @param callable[]               $middlewares
+     * @param callable[]               $aftermiddlewares
+     * @return void
+     */
+    public function addEditorRoute(
+        FastRoute\RouteCollector $r,
+        $method,
+        $route,
+        callable $callable,
+        array $middlewares = [],
+        array $aftermiddlewares = []
+    ) {
+        $this->add($r, $method, $route, $callable, $middlewares, $aftermiddlewares, true, 'editor');
+    }
+
+    /**
+     * Adds a nonce verified author route
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @see self::add()
+     * @param FastRoute\RouteCollector $r
+     * @param string|string[]          $method GET, POST, PUT, etc.
+     * @param string                   $route
+     * @param callable                 $callable class method or function
+     * @param callable[]               $middlewares
+     * @param callable[]               $aftermiddlewares
+     * @return void
+     */
+    public function addAuthorRoute(
+        FastRoute\RouteCollector $r,
+        $method,
+        $route,
+        callable $callable,
+        array $middlewares = [],
+        array $aftermiddlewares = []
+    ) {
+        $this->add($r, $method, $route, $callable, $middlewares, $aftermiddlewares, true, 'author');
+    }
+
+    /**
+     * Adds a nonce verified contributor route
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @see self::add()
+     * @param FastRoute\RouteCollector $r
+     * @param string|string[]          $method GET, POST, PUT, etc.
+     * @param string                   $route
+     * @param callable                 $callable class method or function
+     * @param callable[]               $middlewares
+     * @param callable[]               $aftermiddlewares
+     * @return void
+     */
+    public function addContributorRoute(
+        FastRoute\RouteCollector $r,
+        $method,
+        $route,
+        callable $callable,
+        array $middlewares = [],
+        array $aftermiddlewares = []
+    ) {
+        $this->add($r, $method, $route, $callable, $middlewares, $aftermiddlewares, true, 'contributor');
+    }
+
+    /**
+     * Adds a nonce verified subscriber route
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @see self::add()
+     * @param FastRoute\RouteCollector $r
+     * @param string|string[]          $method GET, POST, PUT, etc.
+     * @param string                   $route
+     * @param callable                 $callable class method or function
+     * @param callable[]               $middlewares
+     * @param callable[]               $aftermiddlewares
+     * @return void
+     */
+    public function addSubscriberRoute(
+        FastRoute\RouteCollector $r,
+        $method,
+        $route,
+        callable $callable,
+        array $middlewares = [],
+        array $aftermiddlewares = []
+    ) {
+        $this->add($r, $method, $route, $callable, $middlewares, $aftermiddlewares, true, 'subscriber');
     }
 
     /**

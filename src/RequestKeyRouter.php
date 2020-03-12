@@ -7,9 +7,6 @@ use AWR\FastRoute as FastRoute;
  * This class resolves routes by checking the value of the `$_REQUEST` object key `awr_req_route`.
  * This allows for creating routes that you want to be resolved before a certain page is loaded
  * without changing the URI of the page. As such, this class is not for creating AJAX endpoints.
- *
- * NOTE: This class MUST be instantiated AFTER WordPress core functions are loaded (ie. some
- * time after `plugins_loaded`, `init`, or any other appropriate WordPress hook)
  */
 class RequestKeyRouter extends Router {
 
@@ -28,6 +25,7 @@ class RequestKeyRouter extends Router {
      * @param callable[]               $aftermiddlewares array of callables to be invoked after
      *                                                   the route callable returns
      * @param boolean                  $noncecheck
+     * @param string                   $role role to check for the current user
      * @return void
      */
     public function add(
@@ -37,16 +35,30 @@ class RequestKeyRouter extends Router {
         callable $callable,
         array $middlewares = [],
         array $aftermiddlewares = [],
-        $noncecheck = false
+        $noncecheck = false,
+        $role = ''
     ) {
-        $r->addRoute($method, $route, function ($args) use ($middlewares, $aftermiddlewares, $callable, $noncecheck) {
+        $r->addRoute($method, $route, function ($args) use (
+            $middlewares,
+            $aftermiddlewares,
+            $callable,
+            $noncecheck,
+            $role
+        ) {
             if ($noncecheck === true) {
                 $nonce = '';
                 if (isset($_REQUEST[$this->getNonceKey()])) {
                     $nonce = sanitize_text_field(wp_unslash($_REQUEST[$this->getNonceKey()]));
                 }
                 if (!wp_verify_nonce($nonce, $this->getNonceName())) {
-                    die('Security check');
+                    die('Forbidden');
+                }
+            }
+            if (!empty($role)) {
+                $user = wp_get_current_user();
+                if (!in_array(strtolower($role), (array)$user->roles, true)) {
+                    http_response_code(403);
+                    die('Forbidden');
                 }
             }
             $payload = $this->getJsonPayload();
