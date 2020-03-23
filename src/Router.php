@@ -143,7 +143,8 @@ class Router {
         $noncecheck = false,
         $role = ''
     ) {
-        $r->addRoute($method, $route, function ($args) use (
+        $baseurip = parse_url($this->stripTrailingSlash(get_home_url()), PHP_URL_PATH);
+        $r->addRoute($method, $baseurip . $route, function ($args) use (
             $middlewares,
             $aftermiddlewares,
             $callable,
