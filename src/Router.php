@@ -143,8 +143,7 @@ class Router {
         $noncecheck = false,
         $role = ''
     ) {
-        $baseurip = parse_url($this->stripTrailingSlash(get_home_url()), PHP_URL_PATH);
-        $r->addRoute($method, $baseurip . $route, function ($args) use (
+        $r->addRoute($method, $route, function ($args) use (
             $middlewares,
             $aftermiddlewares,
             $callable,
@@ -478,6 +477,21 @@ class Router {
             'nonce' => $this->nonce,
             'nonceField' => $this->nonce_field,
         ];
+    }
+
+    /**
+     * Returns trailing path if using multi-site
+     *
+     * 'Route prefix', in this case, means a route path that should always
+     * come at the very beginning of any route you register. If using multi-site,
+     * the site path will be returned. If no path is found, an empty string will be returned
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return string
+     */
+    public function getRoutePrefix() {
+        $baseurip = wp_parse_url($this->stripTrailingSlash(get_home_url()), PHP_URL_PATH);
+        return !empty($baseurip) ? $baseurip : '';
     }
 
     /**
