@@ -1,8 +1,6 @@
 <?php
 namespace Aivec\WordPress\Routing;
 
-use FastRoute;
-
 /**
  * Collects routes, dispatches and listens to requests
  */
@@ -57,7 +55,7 @@ class Dispatcher {
      *
      * @param callable $routeDefinitionCallback
      * @param array    $options
-     * @return FastRoute\Dispatcher
+     * @return \FastRoute\Dispatcher
      */
     private function wordpressSimpleDispatcher(callable $routeDefinitionCallback, array $options = []) {
         $collectorClassName = 'WordPressRouteCollector';
@@ -71,23 +69,23 @@ class Dispatcher {
 
         /* @var RouteCollector $routeCollector */
         $routeCollector = new $options['routeCollector'](
-            new FastRoute\RouteParser\Std(), new FastRoute\DataGenerator\GroupCountBased()
+            new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased()
         );
         $routeDefinitionCallback($routeCollector);
 
-        return new FastRoute\Dispatcher\GroupCountBased($routeCollector->getData());
+        return new \FastRoute\Dispatcher\GroupCountBased($routeCollector->getData());
     }
 
     /**
      * Parses requests and dispatches to appropriate handlers
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param FastRoute\Dispatcher $dispatcher
-     * @param string               $httpmethod
-     * @param string               $uri should only include url path (and optionally query args)
+     * @param \FastRoute\Dispatcher $dispatcher
+     * @param string                $httpmethod
+     * @param string                $uri should only include url path (and optionally query args)
      * @return void
      */
-    protected function dispatch(FastRoute\Dispatcher $dispatcher, $httpmethod, $uri) {
+    protected function dispatch(\FastRoute\Dispatcher $dispatcher, $httpmethod, $uri) {
         // Strip query string (?foo=bar) and decode URI
         if (false !== $pos = strpos($uri, '?')) {
             $uri = substr($uri, 0, $pos);
@@ -95,10 +93,10 @@ class Dispatcher {
         $uri = rawurldecode($uri);
         $routeInfo = $dispatcher->dispatch($httpmethod, $uri);
         switch ($routeInfo[0]) {
-            case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+            case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
                 break;
-            case FastRoute\Dispatcher::FOUND:
+            case \FastRoute\Dispatcher::FOUND:
                 $handler = $routeInfo[1];
                 $vars = $routeInfo[2];
                 $handler($vars);
