@@ -75,9 +75,6 @@ class Router {
             $this->setNonce($nonce_key, $nonce_name);
         }
 
-        // bootstrap FastRoute package
-        require_once(__DIR__ . '/dist/AWR/FastRoute/bootstrap.php');
-
         $this->dispatcher = new Dispatcher($this);
     }
 
