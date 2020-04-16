@@ -1,8 +1,7 @@
 <?php
 namespace Aivec\WordPress\Routing;
 
-use Exception;
-use AWR\FastRoute as FastRoute;
+use AWR\FastRoute;
 
 /**
  * Collects routes, dispatches and listens to requests
@@ -10,34 +9,20 @@ use AWR\FastRoute as FastRoute;
 class Dispatcher {
 
     /**
-     * Array of routers
+     * Router
      *
-     * @var Router[]
+     * @var Router
      */
-    private $routers = [];
+    private $router;
 
     /**
      * Constructs list of `Router`s if provided
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param Router ...$routers
-     * @throws Exception If any of `$routers` is not an instance of `Router`.
+     * @param Router $router
      */
-    public function __construct(Router ...$routers) {
-        foreach ($routers as $router) {
-            $this->routers[] = $router;
-        }
-    }
-
-    /**
-     * Adds `$router` to list of routers
-     *
-     * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param Router $routerInstance
-     * @return void
-     */
-    public function addRouter(Router $routerInstance) {
-        $this->routers[] = $routerInstance;
+    public function __construct(Router $router) {
+        $this->router = $router;
     }
 
     /**
@@ -47,23 +32,53 @@ class Dispatcher {
      * @return void
      */
     public function listen() {
-        $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
-            foreach ($this->routers as $router) {
+        $router = $this->router;
+        $dispatcher = $this->wordpressSimpleDispatcher(function (WordpressRouteCollector $r) use ($router) {
+            $r->setNonceKey($router->getNonceKey());
+            $r->setNonceName($router->getNonceName());
+            $r->addGroup($this->getMultiSitePrefix() . $router->getMyRoutePrefix(), function ($r) use ($router) {
                 $router->declareRoutes($r);
-            }
-            foreach ($this->routers as $router) {
-                $router->declareRedirectRoutes($r);
-            }
+            });
         });
 
         $reqmethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST';
-        $requri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-        $redirecturi = isset($_SERVER['REDIRECT_URI']) ? $_SERVER['REDIRECT_URI'] : '';
-        $reqkeyroute = isset($_REQUEST[RequestKeyRouter::ROUTE_KEY]) ? $_REQUEST[RequestKeyRouter::ROUTE_KEY] : '';
+        
+        if ($router instanceof RequestKeyRouter) {
+            $reqkeyroute = isset($_REQUEST[WordPressRequestKeyRouteCollector::ROUTE_KEY]) ? $_REQUEST[WordPressRequestKeyRouteCollector::ROUTE_KEY] : '';
+            $this->dispatch($dispatcher, $reqmethod, $reqkeyroute);
+        } elseif (!($router instanceof RequestKeyRouter) && $router instanceof Router) {
+            $requri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+            $this->dispatch($dispatcher, $reqmethod, $requri);
+        }
+    }
 
-        $this->dispatch($dispatcher, $reqmethod, $requri);
-        $this->dispatch($dispatcher, $reqmethod, $redirecturi);
-        $this->dispatch($dispatcher, $reqmethod, $reqkeyroute);
+    /**
+     * Sets up `FastRoute` classes
+     *
+     * @param callable $routeDefinitionCallback
+     * @param array    $options
+     * @return \AWR\FastRoute\Dispatcher
+     */
+    private function wordpressSimpleDispatcher(callable $routeDefinitionCallback, array $options = []) {
+        $collectorClassName = 'WordpressRouteCollector';
+        if ($this->router instanceof RequestKeyRouter) {
+            $collectorClassName = 'WordpressRequestKeyRouteCollector';
+        }
+
+        $options += [
+            'routeParser' => '\\AWR\\FastRoute\\RouteParser\\Std',
+            'dataGenerator' => '\\AWR\\FastRoute\\DataGenerator\\GroupCountBased',
+            'dispatcher' => '\\AWR\\FastRoute\\Dispatcher\\GroupCountBased',
+            'routeCollector' => __NAMESPACE__ . '\\' . $collectorClassName,
+        ];
+
+        /* @var RouteCollector $routeCollector */
+        $routeCollector = new $options['routeCollector'](
+            new $options['routeParser'](), new $options['dataGenerator']()
+        );
+        $routeDefinitionCallback($routeCollector);
+
+        return new $options['dispatcher']($routeCollector->getData());
     }
 
     /**
@@ -92,5 +107,20 @@ class Dispatcher {
                 $handler($vars);
                 break;
         }
+    }
+
+    /**
+     * Returns trailing path if using multi-site
+     *
+     * 'Route prefix', in this case, means a route path that should always
+     * come at the very beginning of any route you register. If using multi-site,
+     * the site path will be returned. If no path is found, an empty string will be returned
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return string
+     */
+    public function getMultiSitePrefix() {
+        $baseurip = wp_parse_url(trim(get_home_url(), '/'), PHP_URL_PATH);
+        return !empty($baseurip) ? $baseurip : '';
     }
 }

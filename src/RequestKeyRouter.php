@@ -1,8 +1,6 @@
 <?php
 namespace Aivec\WordPress\Routing;
 
-use AWR\FastRoute as FastRoute;
-
 /**
  * This class resolves routes by checking the value of the `$_REQUEST` object key `awr_req_route`.
  * This allows for creating routes that you want to be resolved before a certain page is loaded
@@ -10,122 +8,14 @@ use AWR\FastRoute as FastRoute;
  */
 class RequestKeyRouter extends Router {
 
-    const ROUTE_KEY = 'awr_req_route';
-
     /**
-     * Delegates requests to the appropriate class handler method
+     * Method for declaring routes.
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param FastRoute\RouteCollector $r
-     * @param string|string[]          $method GET, POST, PUT, etc.
-     * @param string                   $route
-     * @param callable                 $callable class method or function
-     * @param callable[]               $middlewares array of middleware callables to be invoked
-     *                                              before the route callable
-     * @param callable[]               $aftermiddlewares array of callables to be invoked after
-     *                                                   the route callable returns
-     * @param boolean                  $noncecheck
-     * @param string                   $role role to check for the current user
+     * @param WordPressRequestKeyRouteCollector $r
      * @return void
      */
-    public function add(
-        FastRoute\RouteCollector $r,
-        $method,
-        $route,
-        callable $callable,
-        array $middlewares = [],
-        array $aftermiddlewares = [],
-        $noncecheck = false,
-        $role = ''
-    ) {
-        $r->addRoute($method, $route, function ($args) use (
-            $middlewares,
-            $aftermiddlewares,
-            $callable,
-            $noncecheck,
-            $role
-        ) {
-            if ($noncecheck === true) {
-                $nonce = '';
-                if (isset($_REQUEST[$this->getNonceKey()])) {
-                    $nonce = sanitize_text_field(wp_unslash($_REQUEST[$this->getNonceKey()]));
-                }
-                if (!wp_verify_nonce($nonce, $this->getNonceName())) {
-                    die('Forbidden');
-                }
-            }
-            if (!empty($role)) {
-                $user = wp_get_current_user();
-                if (!in_array(strtolower($role), (array)$user->roles, true)) {
-                    http_response_code(403);
-                    die('Forbidden');
-                }
-            }
-            $payload = $this->getJsonPayload();
-            foreach ($middlewares as $middleware) {
-                call_user_func($middleware, $args, $payload);
-            }
-            $res = call_user_func($callable, $args, $payload);
-            foreach ($aftermiddlewares as $afterm) {
-                $res = call_user_func($afterm, $res, $args, $payload);
-            }
-        });
-    }
-
-    /**
-     * Handles redirects from other origins
-     *
-     * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param string     $url
-     * @param callable   $callable
-     * @param array      $getkey_conditions
-     * @param array      $getkeyval_conditions
-     * @param callable[] $middlewares array of middleware functions
-     * @return void
-     */
-    public function addRedirectRoute(
-        $url,
-        callable $callable,
-        $getkey_conditions = [],
-        $getkeyval_conditions = [],
-        $middlewares = []
-    ) {
-        $redirected = false;
-        $redirect_uri = isset($_SERVER['REDIRECT_URL']) ? $_SERVER['REDIRECT_URL'] : '';
-        $redirect_fullpath = isset($_SERVER['REDIRECT_URI']) ? $_SERVER['REDIRECT_URI'] : '';
-        if (!empty($redirect_uri)) {
-            if (strpos($url, $redirect_uri) !== false) {
-                $redirected = true;
-            }
-        } elseif (!empty($redirect_fullpath)) {
-            if (strpos($url, $redirect_fullpath) !== false) {
-                $redirected = true;
-            }
-        }
-
-        if ($redirected === false) {
-            return;
-        }
-
-        foreach ($getkey_conditions as $getkey) {
-            $getval = isset($_GET[$getkey]) ? $_GET[$getkey] : null;
-            if ($getval === null) {
-                return;
-            }
-        }
-
-        foreach ($getkeyval_conditions as $getkey => $val) {
-            $getval = isset($_GET[$getkey]) ? $_GET[$getkey] : null;
-            if ($getval === $val) {
-                return;
-            }
-        }
-
-        foreach ($middlewares as $middleware) {
-            call_user_func($middleware, $_GET);
-        }
-
-        call_user_func($callable, $_GET);
+    public function declareRoutes(WordPressRequestKeyRouteCollector $r) {
     }
 
     /**
@@ -139,9 +29,9 @@ class RequestKeyRouter extends Router {
     public function createQueryUrl($route, $baseurl = '') {
         $query = [
             $this->getNonceKey() => $this->getNonce(),
-            self::ROUTE_KEY => rawurlencode($route),
+            WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
         ];
-        $baseurl = !empty($baseurl) ? $this->stripTrailingSlash($baseurl) : $this->stripTrailingSlash(get_home_url());
+        $baseurl = !empty($baseurl) ? trim($baseurl, '/') : trim(get_home_url(), '/');
 
         return add_query_arg($query, $baseurl);
     }
@@ -166,10 +56,10 @@ class RequestKeyRouter extends Router {
     ) {
         ob_start();
         $id = $formid !== null ? ' id="' . esc_attr($formid) . '"' : '';
-        $actionurl = !empty($actionurl) ? $actionurl : $this->stripTrailingSlash(get_home_url());
+        $actionurl = !empty($actionurl) ? $actionurl : trim(get_home_url(), '/');
         ?>
         <form action="<?php echo esc_url($actionurl) ?>" method="<?php echo esc_attr($method) ?>"<?php echo $id ?>>
-            <input type="hidden" name="<?php echo self::ROUTE_KEY ?>" value="<?php echo rawurlencode($route) ?>" />
+            <input type="hidden" name="<?php echo WordPressRequestKeyRouteCollector::ROUTE_KEY ?>" value="<?php echo rawurlencode($route) ?>" />
             <?php echo $this->getNonceField(); ?>
             <?php echo $innerhtml ?>
         </form>
@@ -200,10 +90,10 @@ class RequestKeyRouter extends Router {
     ) {
         ob_start();
         $id = $formid !== null ? ' id="' . esc_attr($formid) . '"' : '';
-        $actionurl = !empty($actionurl) ? $actionurl : $this->stripTrailingSlash(get_home_url());
+        $actionurl = !empty($actionurl) ? $actionurl : trim(get_home_url(), '/');
         ?>
         <form action="<?php echo esc_url($actionurl) ?>" method="<?php echo esc_attr($method) ?>"<?php echo $id ?>>
-            <input type="hidden" name="<?php echo self::ROUTE_KEY ?>" value="<?php echo rawurlencode($route) ?>" />
+            <input type="hidden" name="<?php echo WordPressRequestKeyRouteCollector::ROUTE_KEY ?>" value="<?php echo rawurlencode($route) ?>" />
             <input
                 type="hidden"
                 name="<?php echo esc_attr($this->getNonceKey()) ?>"

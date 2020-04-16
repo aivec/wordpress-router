@@ -1,34 +1,29 @@
 <?php
 namespace Aivec\WordPress\Routing;
 
-use AWR\FastRoute as FastRoute;
-
 /**
- * Create passthru routes (non-AJAX routes that do not invoke `die()`)
- *
- * In cases where template routing is being delegated to WordPress, the
- * `RequestKeyRouter` should be used instead.
+ * Router collector for `RequestKey` routes
  */
-class PassthruRouter extends Router {
+class WordPressRequestKeyRouteCollector extends WordPressRouteCollector {
+
+    const ROUTE_KEY = 'awr_req_route';
 
     /**
      * Delegates requests to the appropriate class handler method
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param FastRoute\RouteCollector $r
-     * @param string|string[]          $method GET, POST, PUT, etc.
-     * @param string                   $route
-     * @param callable                 $callable class method or function
-     * @param callable[]               $middlewares array of middleware callables to be invoked
-     *                                              before the route callable
-     * @param callable[]               $aftermiddlewares array of callables to be invoked after
-     *                                                   the route callable returns
-     * @param boolean                  $noncecheck
-     * @param string                   $role role to check for the current user
+     * @param string|string[] $method GET, POST, PUT, etc.
+     * @param string          $route
+     * @param callable        $callable class method or function
+     * @param callable[]      $middlewares array of middleware callables to be invoked
+     *                                     before the route callable
+     * @param callable[]      $aftermiddlewares array of callables to be invoked after
+     *                                          the route callable returns
+     * @param boolean         $noncecheck
+     * @param string          $role role to check for the current user
      * @return void
      */
-    public function add(
-        FastRoute\RouteCollector $r,
+    public function addWordPressRoute(
         $method,
         $route,
         callable $callable,
@@ -37,7 +32,7 @@ class PassthruRouter extends Router {
         $noncecheck = false,
         $role = ''
     ) {
-        $r->addRoute($method, $route, function ($args) use (
+        $this->addRoute($method, $route, function ($args) use (
             $middlewares,
             $aftermiddlewares,
             $callable,
@@ -46,10 +41,10 @@ class PassthruRouter extends Router {
         ) {
             if ($noncecheck === true) {
                 $nonce = '';
-                if (isset($_REQUEST[$this->getNonceKey()])) {
-                    $nonce = sanitize_text_field(wp_unslash($_REQUEST[$this->getNonceKey()]));
+                if (isset($_REQUEST[$this->nonce_key])) {
+                    $nonce = sanitize_text_field(wp_unslash($_REQUEST[$this->nonce_key]));
                 }
-                if (!wp_verify_nonce($nonce, $this->getNonceName())) {
+                if (!wp_verify_nonce($nonce, $this->nonce_name)) {
                     die('Forbidden');
                 }
             }
