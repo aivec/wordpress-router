@@ -1,7 +1,7 @@
 <?php
 namespace Aivec\WordPress\Routing;
 
-use AWR\FastRoute;
+use FastRoute;
 
 /**
  * Collects routes, dispatches and listens to requests
@@ -57,28 +57,25 @@ class Dispatcher {
      *
      * @param callable $routeDefinitionCallback
      * @param array    $options
-     * @return \AWR\FastRoute\Dispatcher
+     * @return FastRoute\Dispatcher
      */
     private function wordpressSimpleDispatcher(callable $routeDefinitionCallback, array $options = []) {
-        $collectorClassName = 'WordpressRouteCollector';
+        $collectorClassName = 'WordPressRouteCollector';
         if ($this->router instanceof RequestKeyRouter) {
-            $collectorClassName = 'WordpressRequestKeyRouteCollector';
+            $collectorClassName = 'WordPressRequestKeyRouteCollector';
         }
 
         $options += [
-            'routeParser' => '\\AWR\\FastRoute\\RouteParser\\Std',
-            'dataGenerator' => '\\AWR\\FastRoute\\DataGenerator\\GroupCountBased',
-            'dispatcher' => '\\AWR\\FastRoute\\Dispatcher\\GroupCountBased',
             'routeCollector' => __NAMESPACE__ . '\\' . $collectorClassName,
         ];
 
         /* @var RouteCollector $routeCollector */
         $routeCollector = new $options['routeCollector'](
-            new $options['routeParser'](), new $options['dataGenerator']()
+            new FastRoute\RouteParser\Std(), new FastRoute\DataGenerator\GroupCountBased()
         );
         $routeDefinitionCallback($routeCollector);
 
-        return new $options['dispatcher']($routeCollector->getData());
+        return new FastRoute\Dispatcher\GroupCountBased($routeCollector->getData());
     }
 
     /**

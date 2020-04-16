@@ -9,16 +9,6 @@ namespace Aivec\WordPress\Routing;
 class RequestKeyRouter extends Router {
 
     /**
-     * Method for declaring routes.
-     *
-     * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param WordPressRequestKeyRouteCollector $r
-     * @return void
-     */
-    public function declareRoutes(WordPressRequestKeyRouteCollector $r) {
-    }
-
-    /**
      * Create query url for GET request
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>

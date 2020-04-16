@@ -1,7 +1,7 @@
 <?php
 namespace Aivec\WordPress\Routing;
 
-use AWR\FastRoute\RouteCollector;
+use FastRoute\RouteCollector;
 
 /**
  * Route collector for WordPress REST routes
