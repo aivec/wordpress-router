@@ -89,6 +89,11 @@ class WordPressRouteCollector extends RouteCollector {
             foreach ($middlewares as $middleware) {
                 $res = call_user_func($middleware, $args, $payload);
                 if (!empty($res)) {
+                    $jsonres = json_encode($res);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        // JSON is valid
+                        die($jsonres);
+                    }
                     die($res);
                 }
             }
@@ -98,6 +103,11 @@ class WordPressRouteCollector extends RouteCollector {
             }
             if (empty($res)) {
                 die(0);
+            }
+            $jsonres = json_encode($res);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                // JSON is valid
+                die($jsonres);
             }
             die($res);
         });
@@ -342,7 +352,7 @@ class WordPressRouteCollector extends RouteCollector {
     }
 
     /**
-     * Decodes JSON body if set. Returns null if not set
+     * Decodes JSON body if set. Returns empty array if not set
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
      * @return array
