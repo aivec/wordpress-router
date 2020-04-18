@@ -89,12 +89,14 @@ class WordPressRouteCollector extends RouteCollector {
             foreach ($middlewares as $middleware) {
                 $res = call_user_func($middleware, $args, $payload);
                 if (!empty($res)) {
-                    $jsonres = json_encode($res);
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        // JSON is valid
-                        die($jsonres);
+                    if (is_string($res)) {
+                        json_decode($res);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            // $res is already JSON
+                            die($res);
+                        }
                     }
-                    die($res);
+                    die(json_encode($res));
                 }
             }
             $res = call_user_func($callable, $args, $payload);
@@ -104,12 +106,14 @@ class WordPressRouteCollector extends RouteCollector {
             if (empty($res)) {
                 die(0);
             }
-            $jsonres = json_encode($res);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                // JSON is valid
-                die($jsonres);
+            if (is_string($res)) {
+                json_decode($res);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    // $res is already JSON
+                    die($res);
+                }
             }
-            die($res);
+            die(json_encode($res));
         });
     }
 
