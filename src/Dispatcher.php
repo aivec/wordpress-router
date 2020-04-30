@@ -34,7 +34,11 @@ class Dispatcher {
         $dispatcher = $this->wordpressSimpleDispatcher(function (WordpressRouteCollector $r) use ($router) {
             $r->setNonceKey($router->getNonceKey());
             $r->setNonceName($router->getNonceName());
-            $r->addGroup($this->getMultiSitePrefix() . $router->getMyRoutePrefix(), function ($r) use ($router) {
+            $prefix = '';
+            if (!($router instanceof RequestKeyRouter)) {
+                $prefix = $this->getMultiSitePrefix();
+            }
+            $r->addGroup($prefix . $router->getMyRoutePrefix(), function ($r) use ($router) {
                 $router->declareRoutes($r);
             });
         });

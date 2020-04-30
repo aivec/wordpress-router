@@ -21,7 +21,22 @@ class RequestKeyRouter extends Router {
             $this->getNonceKey() => $this->getNonce(),
             WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
         ];
-        $baseurl = !empty($baseurl) ? trim($baseurl, '/') : trim(get_home_url(), '/');
+
+        return add_query_arg($query, $baseurl);
+    }
+
+    /**
+     * Creates a public (no nonce check) query url for GET request
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @param string $route
+     * @param string $baseurl defaults to `get_home_url()`
+     * @return string
+     */
+    public function createPublicQueryUrl($route, $baseurl = '') {
+        $query = [
+            WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
+        ];
 
         return add_query_arg($query, $baseurl);
     }
