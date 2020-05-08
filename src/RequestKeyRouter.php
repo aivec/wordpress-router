@@ -14,13 +14,17 @@ class RequestKeyRouter extends Router {
      * @author Evan D Shaw <evandanielshaw@gmail.com>
      * @param string $route
      * @param string $baseurl defaults to `get_home_url()`
+     * @param array  $queryargs
      * @return string
      */
-    public function createQueryUrl($route, $baseurl = '') {
-        $query = [
-            $this->getNonceKey() => $this->getNonce(),
-            WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
-        ];
+    public function createQueryUrl($route, $baseurl = '', array $queryargs = []) {
+        $query = array_merge(
+            [
+                $this->getNonceKey() => $this->getNonce(),
+                WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
+            ],
+            $queryargs
+        );
 
         return add_query_arg($query, $baseurl);
     }
@@ -31,12 +35,16 @@ class RequestKeyRouter extends Router {
      * @author Evan D Shaw <evandanielshaw@gmail.com>
      * @param string $route
      * @param string $baseurl defaults to `get_home_url()`
+     * @param array  $queryargs
      * @return string
      */
-    public function createPublicQueryUrl($route, $baseurl = '') {
-        $query = [
-            WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
-        ];
+    public function createPublicQueryUrl($route, $baseurl = '', array $queryargs = []) {
+        $query = array_merge(
+            [
+                WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
+            ],
+            $queryargs
+        );
 
         return add_query_arg($query, $baseurl);
     }
