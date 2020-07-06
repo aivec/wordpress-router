@@ -103,9 +103,6 @@ class WordPressRouteCollector extends RouteCollector {
             foreach ($aftermiddlewares as $afterm) {
                 $res = call_user_func($afterm, $res, $args, $payload);
             }
-            if (empty($res)) {
-                die(0);
-            }
             if (is_string($res)) {
                 json_decode($res);
                 if (json_last_error() === JSON_ERROR_NONE) {
