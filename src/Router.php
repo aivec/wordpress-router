@@ -1,4 +1,5 @@
 <?php
+
 namespace Aivec\WordPress\Routing;
 
 use RuntimeException;
@@ -9,8 +10,8 @@ use RuntimeException;
  * NOTE: This class MUST be instantiated AFTER WordPress core functions are loaded (ie. some
  * time after 'plugins_loaded', 'init', or any other appropriate WordPress hook)
  */
-class Router {
-
+class Router
+{
     /**
      * Dispatcher instance
      *
@@ -248,7 +249,7 @@ class Router {
     public function getNonceName() {
         return $this->nonce_name;
     }
-    
+
     /**
      * Getter for nonce_field
      *

@@ -14,9 +14,17 @@
       "Aivec\\WordPress\\Routing\\": "src"
     }
   },
+  "scripts": {
+    "lint": "phpcs -ps --standard=AivecWP-5 --extensions=php .",
+    "lint:fix": "phpcbf -ps --standard=AivecWP-5 --extensions=php ."
+  },
   "require-dev": {
-    "aivec/phpcs-wp": "^1.0",
-    "aivec/codecept-docker": "^0.0.1"
+    "aivec/phpcs-wp": "^2.0",
+    "aivec/codecept-docker": "^0.4.0",
+    "codeception/module-asserts": "^1.3",
+    "codeception/module-db": "^1.1",
+    "codeception/module-phpbrowser": "^1.0",
+    "codeception/module-cli": "^1.1"
   },
   "require": {
     "nikic/fast-route": "^1.3"

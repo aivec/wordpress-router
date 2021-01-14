@@ -1,11 +1,12 @@
 <?php
+
 namespace Aivec\WordPress\Routing;
 
 /**
  * Collects routes, dispatches and listens to requests
  */
-class Dispatcher {
-
+class Dispatcher
+{
     /**
      * Router
      *
@@ -44,7 +45,7 @@ class Dispatcher {
         });
 
         $reqmethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'POST';
-        
+
         if ($router instanceof RequestKeyRouter) {
             $reqkeyroute = isset($_REQUEST[WordPressRequestKeyRouteCollector::ROUTE_KEY]) ? $_REQUEST[WordPressRequestKeyRouteCollector::ROUTE_KEY] : '';
             $this->dispatch($dispatcher, $reqmethod, $reqkeyroute);
@@ -73,7 +74,8 @@ class Dispatcher {
 
         /* @var RouteCollector $routeCollector */
         $routeCollector = new $options['routeCollector'](
-            new \FastRoute\RouteParser\Std(), new \FastRoute\DataGenerator\GroupCountBased()
+            new \FastRoute\RouteParser\Std(),
+            new \FastRoute\DataGenerator\GroupCountBased()
         );
         $routeDefinitionCallback($routeCollector);
 

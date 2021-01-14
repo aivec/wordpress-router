@@ -1,4 +1,5 @@
 <?php
+
 namespace Aivec\WordPress\Routing;
 
 use FastRoute\RouteCollector;
@@ -6,8 +7,8 @@ use FastRoute\RouteCollector;
 /**
  * Route collector for WordPress REST routes
  */
-class WordPressRouteCollector extends RouteCollector {
-
+class WordPressRouteCollector extends RouteCollector
+{
     /**
      * WordPress nonce key for POST/AJAX requests
      *
@@ -277,6 +278,7 @@ class WordPressRouteCollector extends RouteCollector {
      * @param mixed      $handler
      * @param callable[] $middlewares
      * @param callable[] $aftermiddlewares
+     * @return void
      */
     public function get($route, $handler, array $middlewares = [], array $aftermiddlewares = []) {
         $this->add('GET', $route, $handler, $middlewares, $aftermiddlewares);
@@ -291,6 +293,7 @@ class WordPressRouteCollector extends RouteCollector {
      * @param mixed      $handler
      * @param callable[] $middlewares
      * @param callable[] $aftermiddlewares
+     * @return void
      */
     public function post($route, $handler, array $middlewares = [], array $aftermiddlewares = []) {
         $this->add('POST', $route, $handler, $middlewares, $aftermiddlewares);
@@ -305,6 +308,7 @@ class WordPressRouteCollector extends RouteCollector {
      * @param mixed      $handler
      * @param callable[] $middlewares
      * @param callable[] $aftermiddlewares
+     * @return void
      */
     public function put($route, $handler, array $middlewares = [], array $aftermiddlewares = []) {
         $this->add('PUT', $route, $handler, $middlewares, $aftermiddlewares);
@@ -319,6 +323,7 @@ class WordPressRouteCollector extends RouteCollector {
      * @param mixed      $handler
      * @param callable[] $middlewares
      * @param callable[] $aftermiddlewares
+     * @return void
      */
     public function delete($route, $handler, array $middlewares = [], array $aftermiddlewares = []) {
         $this->add('DELETE', $route, $handler, $middlewares, $aftermiddlewares);
@@ -333,6 +338,7 @@ class WordPressRouteCollector extends RouteCollector {
      * @param mixed      $handler
      * @param callable[] $middlewares
      * @param callable[] $aftermiddlewares
+     * @return void
      */
     public function patch($route, $handler, array $middlewares = [], array $aftermiddlewares = []) {
         $this->add('PATCH', $route, $handler, $middlewares, $aftermiddlewares);
@@ -347,6 +353,7 @@ class WordPressRouteCollector extends RouteCollector {
      * @param mixed      $handler
      * @param callable[] $middlewares
      * @param callable[] $aftermiddlewares
+     * @return void
      */
     public function head($route, $handler, array $middlewares = [], array $aftermiddlewares = []) {
         $this->add('HEAD', $route, $handler, $middlewares, $aftermiddlewares);

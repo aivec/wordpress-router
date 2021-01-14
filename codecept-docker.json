@@ -1,0 +1,9 @@
+{
+  "namespace": "wordpress-router",
+  "projectType": "library",
+  "language": "en_US",
+  "downloadPlugins": [],
+  "downloadThemes": [],
+  "ssh": [],
+  "ftp": []
+}

@@ -1,4 +1,5 @@
 <?php
+
 namespace Aivec\WordPress\Routing;
 
 /**
@@ -6,8 +7,8 @@ namespace Aivec\WordPress\Routing;
  * This allows for creating routes that you want to be resolved before a certain page is loaded
  * without changing the URI of the page. As such, this class is not for creating AJAX endpoints.
  */
-class RequestKeyRouter extends Router {
-
+class RequestKeyRouter extends Router
+{
     /**
      * Create query url for GET request
      *

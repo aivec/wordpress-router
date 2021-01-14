@@ -1,10 +1,12 @@
 <?php
+
 namespace Aivec\WordPress\Routing;
 
 /**
  * Router collector for `RequestKey` routes
  */
-class WordPressRequestKeyRouteCollector extends WordPressRouteCollector {
+class WordPressRequestKeyRouteCollector extends WordPressRouteCollector
+{
 
     const ROUTE_KEY = 'awr_req_route';
 
