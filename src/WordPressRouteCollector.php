@@ -80,12 +80,18 @@ class WordPressRouteCollector extends RouteCollector
                 check_ajax_referer($this->nonce_name, $this->nonce_key);
             }
             if (!empty($roles)) {
+                $exists = false;
                 $user = wp_get_current_user();
                 foreach ($roles as $role) {
                     if (in_array(strtolower($role), (array)$user->roles, true)) {
-                        http_response_code(403);
-                        die(-1);
+                        $exists = true;
+                        break;
                     }
+                }
+
+                if ($exists === false) {
+                    http_response_code(403);
+                    die(-1);
                 }
             }
             $payload = $this->getJsonPayload();
