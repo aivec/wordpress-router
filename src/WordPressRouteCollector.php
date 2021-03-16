@@ -76,8 +76,12 @@ class WordPressRouteCollector extends RouteCollector
             $noncecheck,
             $roles
         ) {
+            $ecode = rest_authorization_required_code() === 403 ? Errors::FORBIDDEN : Errors::UNAUTHORIZED;
             if ($noncecheck === true) {
-                check_ajax_referer($this->nonce_name, $this->nonce_key);
+                $valid = check_ajax_referer($this->nonce_name, $this->nonce_key, false);
+                if ($valid === false) {
+                    die(json_encode((new Errors())->getErrorResponse($ecode)));
+                }
             }
             if (!empty($roles)) {
                 $exists = false;
@@ -90,8 +94,7 @@ class WordPressRouteCollector extends RouteCollector
                 }
 
                 if ($exists === false) {
-                    http_response_code(403);
-                    die(-1);
+                    die(json_encode((new Errors())->getErrorResponse($ecode)));
                 }
             }
             $payload = $this->getJsonPayload();
