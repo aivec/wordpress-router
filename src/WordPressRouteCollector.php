@@ -9,6 +9,8 @@ use FastRoute\RouteCollector;
  */
 class WordPressRouteCollector extends RouteCollector
 {
+    const ROUTE_KEY = 'awr_rest_route';
+
     /**
      * WordPress nonce key for POST/AJAX requests
      *

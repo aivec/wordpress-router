@@ -68,10 +68,7 @@ class Router
         $nonce_key = '',
         $nonce_name = ''
     ) {
-        if (strpos($routePrefix, '/') !== 0) {
-            $routePrefix = '/' . $routePrefix;
-        }
-        $this->myRoutePrefix = $routePrefix;
+        $this->myRoutePrefix = '/' . trim($routePrefix, '/');
         if (!empty($nonce_key) && !empty($nonce_name)) {
             $this->setNonce($nonce_key, $nonce_name);
         }
@@ -202,7 +199,7 @@ class Router
      */
     public function getScriptInjectionVariables() {
         return [
-            'endpoint' => trim(get_home_url(), '/'),
+            'endpoint' => $this->getApiEndpoint(),
             'nonceKey' => $this->nonce_key,
             'nonce' => $this->nonce,
             'nonceField' => $this->nonce_field,
@@ -216,11 +213,74 @@ class Router
      * this method cannot be called before WordPress core functions are loaded
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param string $route
+     * @param string $route Default: `/`
      * @return string
      */
-    public function getApiEndpoint($route = '') {
-        return get_home_url(null, $route);
+    public function getApiEndpoint($route = '/') {
+        if (empty($route)) {
+            $route = '/';
+        }
+
+        $blog_id = null;
+        $scheme = 'rest';
+        $route = '/' . ltrim($route, '/');
+
+        if ($this->routeMustBeQueryVar() === false) {
+            $url = get_home_url($blog_id, $this->myRoutePrefix, $scheme);
+            $url .= $route;
+        } else {
+            $url = trailingslashit(get_home_url($blog_id, '', $scheme));
+            $url = add_query_arg(WordPressRouteCollector::ROUTE_KEY, $this->myRoutePrefix . $route, $url);
+        }
+
+        if (is_ssl() && isset($_SERVER['SERVER_NAME'])) {
+            // If the current host is the same as the REST URL host, force the REST URL scheme to HTTPS.
+            if (parse_url(get_home_url($blog_id), PHP_URL_HOST) === $_SERVER['SERVER_NAME']) {
+                $url = set_url_scheme($url, 'https');
+            }
+        }
+
+        if (is_admin() && force_ssl_admin()) {
+            /*
+             * In this situation the home URL may be http:, and `is_ssl()` may be false,
+             * but the admin is served over https: (one way or another), so REST API usage
+             * will be blocked by browsers unless it is also served over HTTPS.
+             */
+            $url = set_url_scheme($url, 'https');
+        }
+
+        return $url;
+    }
+
+    /**
+     * Returns `true` if the route must be appended as a query value for `awr_rest_route`. Returns
+     * `false` if the route can be appended as a path directly on the home URL.
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return bool
+     */
+    public function routeMustBeQueryVar() {
+        // when using a permalink structure the route can be appended directly as a path
+        if (empty(get_option('permalink_structure'))) {
+            return true;
+        }
+
+        // when not using a permalink structure the route must added as a query variable
+        return false;
+    }
+
+    /**
+     * Returns path of home URL if it exists
+     *
+     * If a trailing path is found, the path returned will have a
+     * leading slash and no trailing slash (eg: `/home`)
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return string path or empty string
+     */
+    public function getHomeUrlPath() {
+        $path = parse_url(trim(get_home_url(), '/'), PHP_URL_PATH);
+        return !empty($path) ? $path : '';
     }
 
     /**
