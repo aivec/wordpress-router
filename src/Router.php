@@ -207,7 +207,7 @@ class Router
     }
 
     /**
-     * Returns `$route` appended to the site base URL
+     * Returns `$route` appended to the site base URL **WITHOUT** a trailing slash
      *
      * Note that since this method uses WordPress' `get_home_url()` function,
      * this method cannot be called before WordPress core functions are loaded
@@ -216,14 +216,15 @@ class Router
      * @param string $route Default: `/`
      * @return string
      */
-    public function getApiEndpoint($route = '/') {
+    public function getApiEndpoint($route = '') {
         if (empty($route)) {
-            $route = '/';
+            $route = '';
+        } else {
+            $route = '/' . trim($route, '/');
         }
 
         $blog_id = null;
         $scheme = 'rest';
-        $route = '/' . ltrim($route, '/');
 
         if ($this->routeMustBeQueryVar() === false) {
             $url = get_home_url($blog_id, $this->myRoutePrefix, $scheme);
