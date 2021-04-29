@@ -19,6 +19,7 @@ class RequestKeyRouter extends Router
      * @return string
      */
     public function createQueryUrl($route, $baseurl = '', array $queryargs = []) {
+        $route = $this->getMyRoutePrefix() . '/' . trim($route, '/');
         $query = array_merge(
             [
                 $this->getNonceKey() => $this->getNonce(),
@@ -27,6 +28,7 @@ class RequestKeyRouter extends Router
             $queryargs
         );
 
+        $baseurl = !empty($baseurl) ? $baseurl : get_home_url();
         return add_query_arg($query, $baseurl);
     }
 
@@ -40,6 +42,7 @@ class RequestKeyRouter extends Router
      * @return string
      */
     public function createPublicQueryUrl($route, $baseurl = '', array $queryargs = []) {
+        $route = $this->getMyRoutePrefix() . '/' . trim($route, '/');
         $query = array_merge(
             [
                 WordPressRequestKeyRouteCollector::ROUTE_KEY => rawurlencode($route),
@@ -47,6 +50,7 @@ class RequestKeyRouter extends Router
             $queryargs
         );
 
+        $baseurl = !empty($baseurl) ? $baseurl : get_home_url();
         return add_query_arg($query, $baseurl);
     }
 
@@ -70,7 +74,8 @@ class RequestKeyRouter extends Router
     ) {
         ob_start();
         $id = $formid !== null ? ' id="' . esc_attr($formid) . '"' : '';
-        $actionurl = !empty($actionurl) ? $actionurl : trim(get_home_url(), '/');
+        $actionurl = !empty($actionurl) ? $actionurl : get_home_url();
+        $route = $this->getMyRoutePrefix() . '/' . trim($route, '/');
         ?>
         <form action="<?php echo esc_url($actionurl) ?>" method="<?php echo esc_attr($method) ?>"<?php echo $id ?>>
             <input type="hidden" name="<?php echo WordPressRequestKeyRouteCollector::ROUTE_KEY ?>" value="<?php echo rawurlencode($route) ?>" />
@@ -104,7 +109,8 @@ class RequestKeyRouter extends Router
     ) {
         ob_start();
         $id = $formid !== null ? ' id="' . esc_attr($formid) . '"' : '';
-        $actionurl = !empty($actionurl) ? $actionurl : trim(get_home_url(), '/');
+        $actionurl = !empty($actionurl) ? $actionurl : get_home_url();
+        $route = $this->getMyRoutePrefix() . '/' . trim($route, '/');
         ?>
         <form action="<?php echo esc_url($actionurl) ?>" method="<?php echo esc_attr($method) ?>"<?php echo $id ?>>
             <input type="hidden" name="<?php echo WordPressRequestKeyRouteCollector::ROUTE_KEY ?>" value="<?php echo rawurlencode($route) ?>" />

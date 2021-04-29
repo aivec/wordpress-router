@@ -229,7 +229,7 @@ class Router
             $url = get_home_url($blog_id, $this->myRoutePrefix, $scheme);
             $url .= $route;
         } else {
-            $url = trailingslashit(get_home_url($blog_id, '', $scheme));
+            $url = get_home_url($blog_id, '', $scheme);
             $url = add_query_arg(WordPressRouteCollector::ROUTE_KEY, $this->myRoutePrefix . $route, $url);
         }
 
@@ -260,12 +260,12 @@ class Router
      * @return bool
      */
     public function routeMustBeQueryVar() {
-        // when using a permalink structure the route can be appended directly as a path
+        // when not using a permalink structure the route must be added as a query variable
         if (empty(get_option('permalink_structure'))) {
             return true;
         }
 
-        // when not using a permalink structure the route must added as a query variable
+        // when using a permalink structure the route can be appended directly as a path
         return false;
     }
 
