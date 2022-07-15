@@ -29,5 +29,10 @@
   "require": {
     "nikic/fast-route": "^1.3",
     "aivec/response-handler": "^5.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }
