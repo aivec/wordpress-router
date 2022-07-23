@@ -10,24 +10,20 @@ modules:
     enabled:
         - WPDb
         - WPBrowser
-        - WPCLI
-        - \Helper\Acceptance
+        - Asserts
     config:
-        WPCLI:
-            path: /var/www/html
-            allow-root: true
         WPDb:
             dsn: 'mysql:host=%TEST_SITE_DB_HOST%;dbname=%TEST_SITE_DB_NAME%'
             user: '%TEST_SITE_DB_USER%'
             password: '%TEST_SITE_DB_PASSWORD%'
-            dump: 'tests/_data/dump.sql'
-            #import the dump before the tests; this means the test site database will be repopulated before the tests.
+            dump: 'tests/_data/basic-install.sql' # replace this with the path to your dump file
+            # import the dump before the tests; this means the test site database will be repopulated before the tests.
             populate: true 
             # re-import the dump between tests; this means the test site database will be repopulated between the tests.
             cleanup: true 
             waitlock: 10
             url: '%TEST_SITE_WP_URL%'
-            urlReplacement: true #replace the hardcoded dump URL with the one above
+            urlReplacement: true # replace the hardcoded dump URL with the one above
             tablePrefix: '%TEST_SITE_TABLE_PREFIX%'
         WPBrowser:
             url: '%TEST_SITE_WP_URL%'

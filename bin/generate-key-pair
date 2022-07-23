@@ -1,0 +1,8 @@
+#!/usr/bin/env php
+<?php
+
+use Aivec\WordPress\Routing\Middleware\JWT;
+
+require_once 'vendor/autoload.php';
+
+JWT::generateRSAKeyPair('./jwt/private-key.pem', './jwt/public-key.pem');

@@ -12,3 +12,13 @@
  */
 
 // Put your implementation code here
+
+require_once(ABSPATH . '/wp-content/plugins/wordpress-router/vendor/autoload.php');
+require_once(__DIR__ . '/src/Rest.php');
+
+add_action('init', function () {
+    $router = new Aivec\Testing\Rest('/wp-router', 'wprouter_nonce_key', 'wprouter_nonce_name');
+    $router->dispatcher->listen();
+});
+
+(new Aivec\WordPress\Routing\Admin\SettingsPage('test', 'Test Plugin'))->createSettingsPage();

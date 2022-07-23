@@ -1,9 +1,15 @@
 {
   "namespace": "wordpress-router",
-  "projectType": "library",
+  "projectType": "other",
+  "wordpressVersion": "6.0.1",
+  "mysqlVersion": "5.7",
+  "phpVersion": "7.4",
+  "useSelenoid": false,
   "language": "en_US",
-  "downloadPlugins": [],
-  "downloadThemes": [],
+  "imagePath": "",
+  "customInitScripts": [],
+  "envvars": [],
   "ssh": [],
-  "ftp": []
+  "downloadPlugins": [],
+  "downloadThemes": []
 }

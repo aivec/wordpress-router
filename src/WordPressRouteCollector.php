@@ -3,6 +3,8 @@
 namespace Aivec\WordPress\Routing;
 
 use FastRoute\RouteCollector;
+use InvalidArgumentException;
+use Exception;
 
 /**
  * Route collector for WordPress REST routes
@@ -48,6 +50,76 @@ class WordPressRouteCollector extends RouteCollector
     }
 
     /**
+     * Handles route execution
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @param array      $args
+     * @param array      $payload
+     * @param callable   $callable
+     * @param array      $middlewares
+     * @param array      $aftermiddlewares
+     * @param bool       $noncecheck
+     * @param array|null $roles
+     * @return void
+     */
+    public function handleRoute(
+        $args,
+        $payload,
+        callable $callable,
+        array $middlewares = [],
+        array $aftermiddlewares = [],
+        $noncecheck = false,
+        array $roles = null
+    ) {
+        $ecode = rest_authorization_required_code() === 403 ? Errors::FORBIDDEN : Errors::UNAUTHORIZED;
+        if ($noncecheck === true) {
+            $valid = check_ajax_referer($this->nonce_name, $this->nonce_key, false);
+            if ($valid === false) {
+                die(json_encode((new Errors())->getErrorResponse($ecode)));
+            }
+        }
+        if (!empty($roles)) {
+            $exists = false;
+            $user = wp_get_current_user();
+            foreach ($roles as $role) {
+                if (in_array(strtolower($role), (array)$user->roles, true)) {
+                    $exists = true;
+                    break;
+                }
+            }
+
+            if ($exists === false) {
+                die(json_encode((new Errors())->getErrorResponse($ecode)));
+            }
+        }
+        foreach ($middlewares as $middleware) {
+            $res = call_user_func($middleware, $args, $payload);
+            if (!empty($res)) {
+                if (is_string($res)) {
+                    json_decode($res);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        // $res is already JSON
+                        die($res);
+                    }
+                }
+                die(json_encode($res));
+            }
+        }
+        $res = call_user_func($callable, $args, $payload);
+        foreach ($aftermiddlewares as $afterm) {
+            $res = call_user_func($afterm, $res, $args, $payload);
+        }
+        if (is_string($res)) {
+            json_decode($res);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                // $res is already JSON
+                die($res);
+            }
+        }
+        die(json_encode($res));
+    }
+
+    /**
      * Delegates requests to the appropriate class handler method
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
@@ -78,53 +150,8 @@ class WordPressRouteCollector extends RouteCollector
             $noncecheck,
             $roles
         ) {
-            $ecode = rest_authorization_required_code() === 403 ? Errors::FORBIDDEN : Errors::UNAUTHORIZED;
-            if ($noncecheck === true) {
-                $valid = check_ajax_referer($this->nonce_name, $this->nonce_key, false);
-                if ($valid === false) {
-                    die(json_encode((new Errors())->getErrorResponse($ecode)));
-                }
-            }
-            if (!empty($roles)) {
-                $exists = false;
-                $user = wp_get_current_user();
-                foreach ($roles as $role) {
-                    if (in_array(strtolower($role), (array)$user->roles, true)) {
-                        $exists = true;
-                        break;
-                    }
-                }
-
-                if ($exists === false) {
-                    die(json_encode((new Errors())->getErrorResponse($ecode)));
-                }
-            }
             $payload = $this->getJsonPayload();
-            foreach ($middlewares as $middleware) {
-                $res = call_user_func($middleware, $args, $payload);
-                if (!empty($res)) {
-                    if (is_string($res)) {
-                        json_decode($res);
-                        if (json_last_error() === JSON_ERROR_NONE) {
-                            // $res is already JSON
-                            die($res);
-                        }
-                    }
-                    die(json_encode($res));
-                }
-            }
-            $res = call_user_func($callable, $args, $payload);
-            foreach ($aftermiddlewares as $afterm) {
-                $res = call_user_func($afterm, $res, $args, $payload);
-            }
-            if (is_string($res)) {
-                json_decode($res);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    // $res is already JSON
-                    die($res);
-                }
-            }
-            die(json_encode($res));
+            $this->handleRoute($args, $payload, $callable, $middlewares, $aftermiddlewares, $noncecheck, $roles);
         });
     }
 
@@ -258,6 +285,57 @@ class WordPressRouteCollector extends RouteCollector
         array $aftermiddlewares = []
     ) {
         $this->addWordPressRoute($method, $route, $callable, $middlewares, $aftermiddlewares, false);
+    }
+
+    /**
+     * Adds a public (no nonce check) route with JWT authentication middleware
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @see self::addWordPressRoute()
+     * @param string|string[] $method POST and/or PUT
+     * @param string          $route
+     * @param callable        $callable class method or function
+     * @param Middleware\JWT  $jwt
+     * @param callable[]      $middlewares
+     * @param callable[]      $aftermiddlewares
+     * @return void
+     * @throws InvalidArgumentException Thrown when $method is wrong.
+     */
+    public function addPublicJwtRoute(
+        $method,
+        $route,
+        callable $callable,
+        Middleware\JWT $jwt,
+        array $middlewares = [],
+        array $aftermiddlewares = []
+    ) {
+        if (!is_array($method)) {
+            $method = [$method];
+        }
+        foreach ($method as $m) {
+            $m = strtoupper($m);
+            if ($m !== 'POST' && $m !== 'PUT') {
+                throw new InvalidArgumentException('Only "POST" and "PUT" are allowed for $method');
+            }
+        }
+        $this->addRoute($method, $route, function ($args) use (
+            $callable,
+            $jwt,
+            $middlewares,
+            $aftermiddlewares
+        ) {
+            $payload = [];
+            $rawjson = $this->getJsonPayload();
+            try {
+                $payload = $jwt->decode(!empty($rawjson['jwt']) ? (string)$rawjson['jwt'] : '');
+            } catch (Exception $e) {
+                $errors = new Errors();
+                $errors->populate();
+                die(json_encode($errors->getErrorResponse(Errors::JWT_UNAUTHORIZED, [$e->getMessage()])));
+            }
+
+            $this->handleRoute($args, $payload, $callable, $middlewares, $aftermiddlewares);
+        });
     }
 
     /**

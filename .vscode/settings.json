@@ -1,0 +1,4 @@
+{
+  "phpcs.standard": "AivecWP-5",
+  "phpcbf.standard": "AivecWP-5"
+}

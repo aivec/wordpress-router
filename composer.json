@@ -1,6 +1,6 @@
 {
   "name": "aivec/wordpress-router",
-  "description": "WordPress request router. Middleware handling and nonce checks included.",
+  "description": "WordPress request router. Middleware, JWT, and nonce checks included.",
   "type": "library",
   "license": "GPL-2.0-only",
   "authors": [
@@ -14,20 +14,41 @@
       "Aivec\\WordPress\\Routing\\": "src"
     }
   },
+  "bin": [
+    "bin/aivec-codecept"
+  ],
   "scripts": {
     "lint": "phpcs -ps --standard=AivecWP-5 --extensions=php .",
-    "lint:fix": "phpcbf -ps --standard=AivecWP-5 --extensions=php ."
+    "lint:fix": "phpcbf -ps --standard=AivecWP-5 --extensions=php .",
+    "i18n:update-pos": [
+      "wp i18n make-pot --domain=avcwpr . src/languages/messages.pot",
+      "find ./src/languages -name \"*.po\" | xargs -I % msgmerge -o % % src/languages/messages.pot"
+    ],
+    "i18n:make-mo": "wp i18n make-mo src/languages",
+    "codecept:up": "./vendor/bin/aivec-codecept up",
+    "codecept:down": "./vendor/bin/aivec-codecept down",
+    "test:wpunit": "./vendor/bin/aivec-codecept codecept run wpunit",
+    "test:functional": "./vendor/bin/aivec-codecept codecept run functional",
+    "test:acceptance": "./vendor/bin/aivec-codecept codecept run acceptance",
+    "test:all": [
+      "composer test:wpunit",
+      "composer test:functional",
+      "composer test:acceptance"
+    ]
   },
   "require-dev": {
     "aivec/phpcs-wp": "^2.0",
-    "aivec/codecept-docker": "^0.4.0",
+    "aivec/codecept-docker": "^0.8.1",
     "codeception/module-asserts": "^1.3",
     "codeception/module-db": "^1.1",
     "codeception/module-phpbrowser": "^1.0",
-    "codeception/module-cli": "^1.1"
+    "codeception/module-cli": "^1.1",
+    "codeception/module-rest": "^2.0",
+    "wp-cli/i18n-command": "^2.4"
   },
   "require": {
     "nikic/fast-route": "^1.3",
-    "aivec/response-handler": "^5.0"
+    "aivec/response-handler": "^5.0",
+    "firebase/php-jwt": "^5.0"
   }
 }

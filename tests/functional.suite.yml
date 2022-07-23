@@ -8,17 +8,19 @@ modules:
     enabled:
         - WPDb
         - WPBrowser
-        # - WPFilesystem
         - Asserts
-        - \Helper\Functional
+        - REST:
+            depends: WPBrowser
     config:
         WPDb:
             dsn: 'mysql:host=%TEST_SITE_DB_HOST%;dbname=%TEST_SITE_DB_NAME%'
             user: '%TEST_SITE_DB_USER%'
             password: '%TEST_SITE_DB_PASSWORD%'
-            dump: 'tests/_data/dump.sql'
-            populate: true
-            cleanup: true
+            dump: 'tests/_data/basic-install.sql' # replace this with the path to your dump file
+            #import the dump before the tests; this means the test site database will be repopulated before the tests.
+            populate: true 
+            # re-import the dump between tests; this means the test site database will be repopulated between the tests.
+            cleanup: true 
             waitlock: 10
             url: '%TEST_SITE_WP_URL%'
             urlReplacement: true
@@ -31,10 +33,3 @@ modules:
             headers:
                 X_TEST_REQUEST: 1
                 X_WPBROWSER_REQUEST: 1
-
-        WPFilesystem:
-            wpRootFolder: '%WP_ROOT_FOLDER%'
-            plugins: '/wp-content/plugins'
-            mu-plugins: '/wp-content/mu-plugins'
-            themes: '/wp-content/themes'
-            uploads: '/wp-content/uploads'

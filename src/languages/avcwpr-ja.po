@@ -1,0 +1,51 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-23T23:59:50+09:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: WP-CLI 2.6.0\n"
+"X-Domain: avcwpr\n"
+
+#: src/Admin/SettingsPage.php:100 src/Admin/SettingsPage.php:101
+#: src/Admin/SettingsPage.php:121
+msgid "Router Settings"
+msgstr "ルーター設定"
+
+#: src/Admin/SettingsPage.php:133 src/Admin/SettingsPage.php:136
+msgid "Could not get file contents."
+msgstr "ファイルを読み取れませんでした。"
+
+#: src/Admin/SettingsPage.php:141
+msgid "Private key (base64)"
+msgstr "秘密鍵 (base64)"
+
+#: src/Admin/SettingsPage.php:143
+msgid "Private key"
+msgstr "秘密鍵"
+
+#: src/Admin/SettingsPage.php:145
+msgid "Public key"
+msgstr "公開鍵"
+
+#: src/Admin/SettingsPage.php:167
+msgid "Unique identifier"
+msgstr "ユニークキー"
+
+#: src/Admin/SettingsPage.php:183
+msgid "Private key path"
+msgstr "秘密鍵のファイルパス"
+
+#: src/Admin/SettingsPage.php:199
+msgid "Public key path"
+msgstr "公開鍵のファイルパス"
+
+#: src/Admin/SettingsPage.php:213
+msgid "Generate RSA key pair for JWT"
+msgstr "RSAキーペアを生成する"

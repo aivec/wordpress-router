@@ -6,7 +6,7 @@ actor: WpunitTester
 modules:
     enabled:
         - WPLoader
-        - \Helper\Wpunit
+        - Asserts
     config:
         WPLoader:
             wpRootFolder: "%WP_ROOT_FOLDER%"
