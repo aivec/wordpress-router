@@ -230,7 +230,12 @@ class Router
             $url = get_home_url($blog_id, $this->myRoutePrefix, $scheme);
             $url .= $route;
         } else {
-            $url = get_home_url($blog_id, '', $scheme);
+            $url = trailingslashit(get_home_url($blog_id, '', $scheme));
+            // nginx only allows HTTP/1.0 methods when redirecting from / to /index.php.
+            // To work around this, we manually add index.php to the URL, avoiding the redirect.
+            if ('index.php' !== substr($url, 9)) {
+                $url .= 'index.php';
+            }
             $url = add_query_arg(WordPressRouteCollector::ROUTE_KEY, $this->myRoutePrefix . $route, $url);
         }
 
