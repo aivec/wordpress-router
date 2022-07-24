@@ -6,12 +6,14 @@ use Aivec\WordPress\Routing\Middleware\JWT;
 class JWTCest
 {
     public function _before(FunctionalTester $I) {
-        JWT::generateRSAKeyPair('/app/private-key.pem', '/app/pub-key.pem');
+        $res = JWT::generateRSAKeyPair();
+        file_put_contents('/app/private-key.pem', $res['private_key']);
+        file_put_contents('/app/pub-key.pem', $res['public_key']);
     }
 
     public function rs256KeyPairWorks(FunctionalTester $I) {
         $testp = ['itworks' => 'YES'];
-        $res = $I->sendAjaxPostRequest('/wp-router/test/jwt', [
+        $I->sendAjaxPostRequest('/wp-router/test/jwt', [
             'payload' => json_encode(['jwt' => JWT::encode($testp, (string)file_get_contents('/app/private-key.pem'))]),
         ]);
 

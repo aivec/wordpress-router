@@ -7,46 +7,46 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-07-23T23:59:50+09:00\n"
+"POT-Creation-Date: 2022-07-24T00:23:22+09:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: avcwpr\n"
 
 #: src/Admin/SettingsPage.php:100
 #: src/Admin/SettingsPage.php:101
-#: src/Admin/SettingsPage.php:121
+#: src/Admin/SettingsPage.php:122
 msgid "Router Settings"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:133
-#: src/Admin/SettingsPage.php:136
+#: src/Admin/SettingsPage.php:134
+#: src/Admin/SettingsPage.php:137
 msgid "Could not get file contents."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:141
+#: src/Admin/SettingsPage.php:142
 msgid "Private key (base64)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:143
+#: src/Admin/SettingsPage.php:146
 msgid "Private key"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:145
+#: src/Admin/SettingsPage.php:148
 msgid "Public key"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:167
+#: src/Admin/SettingsPage.php:170
 msgid "Unique identifier"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:183
+#: src/Admin/SettingsPage.php:186
 msgid "Private key path"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:199
+#: src/Admin/SettingsPage.php:202
 msgid "Public key path"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:213
+#: src/Admin/SettingsPage.php:217
 msgid "Generate RSA key pair for JWT"
 msgstr ""

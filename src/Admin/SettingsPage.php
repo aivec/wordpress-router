@@ -122,28 +122,20 @@ class SettingsPage
             <?php
             echo $this->router->createPostForm(
                 '/avcwpr/generateRSAKeyPair',
-                admin_url("admin.php?page={$this->page}"),
+                admin_url("options-general.php?page={$this->page}"),
                 $this->keyPairGeneratorSection()
             );
             $opts = $this->getOpts();
             foreach ($opts[self::JWTKEYS_OPT] as $uniqueid => $paths) {
-                $privkey = (string)file_get_contents($paths['private_key']);
                 $pubkey = (string)file_get_contents($paths['public_key']);
-                if (empty($privkey)) {
-                    $privkey = __('Could not get file contents.', 'avcwpr');
-                }
                 if (empty($pubkey)) {
                     $pubkey = __('Could not get file contents.', 'avcwpr');
                 }
                 ?>
-                <h4><?php echo esc_html($uniqueid); ?></h4>
+                <h1><?php echo esc_html($uniqueid); ?></h1>
                 <hr>
-                <h5><?php esc_html_e('Private key (base64)', 'avcwpr'); ?></h5>
-                <textarea class="avcwpr_private_key_base64"><?php echo base64_encode($privkey); ?></textarea>
-                <h5><?php esc_html_e('Private key', 'avcwpr'); ?></h5>
-                <textarea class="avcwpr_private_key"><?php echo $privkey; ?></textarea>
-                <h5><?php esc_html_e('Public key', 'avcwpr'); ?></h5>
-                <textarea class="avcwpr_public_key"><?php echo $pubkey; ?></textarea>
+                <h2><?php esc_html_e('Public key', 'avcwpr'); ?></h2>
+                <textarea style="height: 300px; max-width: 600px; width: 100%;" class="avcwpr_public_key"><?php echo trim($pubkey); ?></textarea>
                 <?php
             }
             ?>
@@ -179,22 +171,6 @@ class SettingsPage
             </tr>
             <tr>
                 <th scope="row">
-                    <label for="avcwpr_private_key_path">
-                        <?php esc_html_e('Private key path', 'avcwpr'); ?>
-                    </label>
-                </th>
-                <td>
-                    <input
-                        type="text"
-                        name="avcwpr_private_key_path"
-                        id="avcwpr_private_key_path"
-                        value=""
-                        class="regular-text"
-                    />
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">
                     <label for="avcwpr_public_key_path">
                         <?php esc_html_e('Public key path', 'avcwpr'); ?>
                     </label>
@@ -209,11 +185,9 @@ class SettingsPage
                     />
                 </td>
             </tr>
-            <tr>
-                <td><?php submit_button(__('Generate RSA key pair for JWT', 'avcwpr'), 'primary', 'genkeypair'); ?></td>
-            </tr>
         </table>
         <?php
+        submit_button(__('Generate RSA key pair for JWT', 'avcwpr'), 'primary', 'genkeypair');
         return (string)ob_get_clean();
     }
 
@@ -227,25 +201,41 @@ class SettingsPage
         if (empty((string)$_POST['avcwpr_jwt_unique_id'])) {
             return;
         }
-        if (empty((string)$_POST['avcwpr_private_key_path'])) {
-            return;
-        }
         if (empty((string)$_POST['avcwpr_public_key_path'])) {
             return;
         }
 
         $jwtkey = sanitize_key((string)$_POST['avcwpr_jwt_unique_id']);
-        $privpath = sanitize_text_field((string)$_POST['avcwpr_private_key_path']);
         $pubpath = sanitize_text_field((string)$_POST['avcwpr_public_key_path']);
 
         // create key files
-        JWT::generateRSAKeyPair($privpath, $pubpath);
+        $res = JWT::generateRSAKeyPair();
+
+        file_put_contents($pubpath, $res['public_key']);
 
         $opts = $this->getOpts();
         $opts[self::JWTKEYS_OPT][$jwtkey] = [
-            'private_key' => $privpath,
             'public_key' => $pubpath,
         ];
         update_option($this->optkey, $opts);
+
+        $tmpdir = rtrim(get_temp_dir(), '/');
+        $zipname = "{$jwtkey}-jwt-rsa-private-key.zip";
+        $zipf = "{$tmpdir}/{$zipname}";
+        $zip = new \ZipArchive();
+        $zip->open($zipf, \ZipArchive::CREATE);
+        $zip->addFromString("{$jwtkey}-private-key.pem", $res['private_key']);
+        $zip->addFromString("{$jwtkey}-private-key-base64.txt", $res['private_key_base64']);
+        $zip->close();
+
+        $zipdata = (string)file_get_contents($zipf);
+        unlink($zipf);
+
+        mb_http_output('UTF-8');
+        set_time_limit(3600);
+        header('Content-Type: application/octet-stream');
+        header("Content-Disposition: attachment; filename={$zipname}");
+        echo $zipdata;
+        exit;
     }
 }

@@ -54,11 +54,9 @@ class JWT
      * Generates RSA key pair
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
-     * @param string $privateKeyPath
-     * @param string $publicKeyPath
-     * @return void
+     * @return array
      */
-    public static function generateRSAKeyPair($privateKeyPath, $publicKeyPath) {
+    public static function generateRSAKeyPair() {
         $res = openssl_pkey_new([
             'digest_alg' => 'sha256',
             'private_key_bits' => 4096,
@@ -72,7 +70,10 @@ class JWT
         $pubKey = openssl_pkey_get_details($res);
         $pubKey = $pubKey['key'];
 
-        file_put_contents($privateKeyPath, $privKey);
-        file_put_contents($publicKeyPath, $pubKey);
+        return [
+            'private_key_base64' => trim(base64_encode(trim($privKey))),
+            'private_key' => trim($privKey),
+            'public_key' => trim($pubKey),
+        ];
     }
 }
