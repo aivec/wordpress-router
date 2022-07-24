@@ -80,6 +80,19 @@ class SettingsPage
     }
 
     /**
+     * Returns public key path given a JWT unique ID
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @param string $jwtkeyid
+     * @return string
+     */
+    public function getPubKeyPathForUniqueId($jwtkeyid) {
+        $opts = $this->getOpts();
+        $keys = !empty($opts[self::JWTKEYS_OPT][$jwtkeyid]) ? $opts[self::JWTKEYS_OPT][$jwtkeyid] : [];
+        return !empty($keys['public_key']) ? (string)$keys['public_key'] : '';
+    }
+
+    /**
      * Creates settings page
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
