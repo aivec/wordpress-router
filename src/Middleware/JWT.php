@@ -14,7 +14,7 @@ class JWT
      *
      * @var string
      */
-    private $publicKey;
+    private $publicKey = '';
 
     /**
      * Sets `publicKey` member var with the contents of the public key file
@@ -24,7 +24,9 @@ class JWT
      * @return void
      */
     public function __construct($publicKeyPath) {
-        $this->publicKey = (string)file_get_contents($publicKeyPath);
+        if (file_exists($publicKeyPath)) {
+            $this->publicKey = (string)file_get_contents($publicKeyPath);
+        }
     }
 
     /**
