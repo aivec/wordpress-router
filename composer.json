@@ -15,7 +15,7 @@
     }
   },
   "bin": [
-    "bin/aivec-codecept"
+    "bin/generate-key-pair"
   ],
   "scripts": {
     "lint": "phpcs -ps --standard=AivecWP-5 --extensions=php .",
