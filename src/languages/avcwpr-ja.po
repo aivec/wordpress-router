@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-24T00:23:22+09:00\n"
+"POT-Creation-Date: 2022-08-01T17:04:43+09:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,39 +13,41 @@ msgstr ""
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: avcwpr\n"
 
-#: src/Admin/SettingsPage.php:100 src/Admin/SettingsPage.php:101
-#: src/Admin/SettingsPage.php:122
+#: src/Admin/SettingsPage.php:113 src/Admin/SettingsPage.php:114
+#: src/Admin/SettingsPage.php:144
 msgid "Router Settings"
 msgstr "のルーター設定"
 
-#: src/Admin/SettingsPage.php:134 src/Admin/SettingsPage.php:137
+#: src/Admin/SettingsPage.php:155
 msgid "Could not get file contents."
-msgstr "ファイルを読み取れませんでした。"
+msgstr "ファイルの読み込みが失敗しました。"
 
-#: src/Admin/SettingsPage.php:142
-msgid "Private key (base64)"
-msgstr "秘密鍵 (base64)"
+#: src/Admin/SettingsPage.php:175
+msgid "Update public key path."
+msgstr "公開鍵のファイルパスを変更する"
 
-#: src/Admin/SettingsPage.php:146
-msgid "Private key"
-msgstr "秘密鍵"
+#: src/Admin/SettingsPage.php:186
+msgid "Note that changing the public key path does not move the file for you."
+msgstr "公開鍵のパスを変更してもファイル自体が移動されないのでご注意ください。"
 
-#: src/Admin/SettingsPage.php:148
-msgid "Public key"
-msgstr "公開鍵"
+#: src/Admin/SettingsPage.php:197
+msgid "Delete %s"
+msgstr "「%s」を削除する"
 
-#: src/Admin/SettingsPage.php:170
+#: src/Admin/SettingsPage.php:205
+msgid ""
+"Note that deleting the key pair does not automatically remove the public key "
+"file."
+msgstr "キーペアを削除しても公開鍵のファイルが削除されないのでご注意ください。"
+
+#: src/Admin/SettingsPage.php:258
 msgid "Unique identifier"
 msgstr "ユニークキー"
 
-#: src/Admin/SettingsPage.php:186
-msgid "Private key path"
-msgstr "秘密鍵のファイルパス"
-
-#: src/Admin/SettingsPage.php:202
+#: src/Admin/SettingsPage.php:274
 msgid "Public key path"
-msgstr "公開鍵のファイルパス"
+msgstr "公開鍵の置く場所"
 
-#: src/Admin/SettingsPage.php:217
+#: src/Admin/SettingsPage.php:289
 msgid "Generate RSA key pair for JWT"
 msgstr "RSAキーペアを生成する"

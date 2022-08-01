@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-24T00:23:22+09:00\n"
+"POT-Creation-Date: 2022-08-01T17:04:43+09:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,39 +13,43 @@ msgstr ""
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: avcwpr\n"
 
-#: src/Admin/SettingsPage.php:100 src/Admin/SettingsPage.php:101
-#: src/Admin/SettingsPage.php:122
+#: src/Admin/SettingsPage.php:113 src/Admin/SettingsPage.php:114
+#: src/Admin/SettingsPage.php:144
 msgid "Router Settings"
 msgstr " Router Settings"
 
-#: src/Admin/SettingsPage.php:134 src/Admin/SettingsPage.php:137
+#: src/Admin/SettingsPage.php:155
 msgid "Could not get file contents."
 msgstr "Could not get file contents."
 
-#: src/Admin/SettingsPage.php:142
-msgid "Private key (base64)"
-msgstr "Private key (base64)"
+#: src/Admin/SettingsPage.php:175
+msgid "Update public key path."
+msgstr "Update public key path."
 
-#: src/Admin/SettingsPage.php:146
-msgid "Private key"
-msgstr "Private key"
+#: src/Admin/SettingsPage.php:186
+msgid "Note that changing the public key path does not move the file for you."
+msgstr "Note that changing the public key path does not move the file for you."
 
-#: src/Admin/SettingsPage.php:148
-msgid "Public key"
-msgstr "Public key"
+#: src/Admin/SettingsPage.php:197
+msgid "Delete %s"
+msgstr "Delete %s"
 
-#: src/Admin/SettingsPage.php:170
+#: src/Admin/SettingsPage.php:205
+msgid ""
+"Note that deleting the key pair does not automatically remove the public key "
+"file."
+msgstr ""
+"Note that deleting the key pair does not automatically remove the public key "
+"file."
+
+#: src/Admin/SettingsPage.php:258
 msgid "Unique identifier"
 msgstr "Unique identifier"
 
-#: src/Admin/SettingsPage.php:186
-msgid "Private key path"
-msgstr "Private key path"
-
-#: src/Admin/SettingsPage.php:202
+#: src/Admin/SettingsPage.php:274
 msgid "Public key path"
 msgstr "Public key path"
 
-#: src/Admin/SettingsPage.php:217
+#: src/Admin/SettingsPage.php:289
 msgid "Generate RSA key pair for JWT"
 msgstr "Generate RSA key pair for JWT"

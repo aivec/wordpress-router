@@ -37,5 +37,7 @@ class ReqKeyRoutes extends RequestKeyRouter
      */
     public function declareRoutes(WordPressRouteCollector $r) {
         $r->addAdministratorRoute('POST', '/avcwpr/generateRSAKeyPair', [$this->sp, 'generateRSAKeyPair']);
+        $r->addAdministratorRoute('POST', '/avcwpr/updatePubKeyPath', [$this->sp, 'updatePubKeyPath']);
+        $r->addAdministratorRoute('POST', '/avcwpr/deleteKeyPair', [$this->sp, 'deleteKeyPair']);
     }
 }

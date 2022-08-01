@@ -7,46 +7,45 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-07-24T00:23:22+09:00\n"
+"POT-Creation-Date: 2022-08-01T17:04:43+09:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: avcwpr\n"
 
-#: src/Admin/SettingsPage.php:100
-#: src/Admin/SettingsPage.php:101
-#: src/Admin/SettingsPage.php:122
+#: src/Admin/SettingsPage.php:113
+#: src/Admin/SettingsPage.php:114
+#: src/Admin/SettingsPage.php:144
 msgid "Router Settings"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:134
-#: src/Admin/SettingsPage.php:137
+#: src/Admin/SettingsPage.php:155
 msgid "Could not get file contents."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:142
-msgid "Private key (base64)"
-msgstr ""
-
-#: src/Admin/SettingsPage.php:146
-msgid "Private key"
-msgstr ""
-
-#: src/Admin/SettingsPage.php:148
-msgid "Public key"
-msgstr ""
-
-#: src/Admin/SettingsPage.php:170
-msgid "Unique identifier"
+#: src/Admin/SettingsPage.php:175
+msgid "Update public key path."
 msgstr ""
 
 #: src/Admin/SettingsPage.php:186
-msgid "Private key path"
+msgid "Note that changing the public key path does not move the file for you."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:202
+#: src/Admin/SettingsPage.php:197
+msgid "Delete %s"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:205
+msgid "Note that deleting the key pair does not automatically remove the public key file."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:258
+msgid "Unique identifier"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:274
 msgid "Public key path"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:217
+#: src/Admin/SettingsPage.php:289
 msgid "Generate RSA key pair for JWT"
 msgstr ""

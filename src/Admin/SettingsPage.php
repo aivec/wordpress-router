@@ -119,6 +119,16 @@ class SettingsPage
     }
 
     /**
+     * Returns URL for the settings page
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return string
+     */
+    public function getPageUrl() {
+        return admin_url("options-general.php?page={$this->page}");
+    }
+
+    /**
      * Adds `<name> Router Settings` page
      *
      * @author Evan D Shaw <evandanielshaw@gmail.com>
@@ -135,7 +145,7 @@ class SettingsPage
             <?php
             echo $this->router->createPostForm(
                 '/avcwpr/generateRSAKeyPair',
-                admin_url("options-general.php?page={$this->page}"),
+                $this->getPageUrl(),
                 $this->keyPairGeneratorSection()
             );
             $opts = $this->getOpts();
@@ -144,11 +154,87 @@ class SettingsPage
                 if (empty($pubkey)) {
                     $pubkey = __('Could not get file contents.', 'avcwpr');
                 }
+
+                ob_start();
                 ?>
-                <h1><?php echo esc_html($uniqueid); ?></h1>
-                <hr>
-                <h2><?php esc_html_e('Public key', 'avcwpr'); ?></h2>
-                <textarea style="height: 300px; max-width: 600px; width: 100%;" class="avcwpr_public_key"><?php echo trim($pubkey); ?></textarea>
+                <table class="form-table" role="presentation">
+                    <input type="hidden" name="avcwpr_jwt_unique_id" value="<?php echo esc_attr($uniqueid); ?>" />
+                    <tr>
+                        <th scope="row">
+                            <input
+                                type="text"
+                                name="avcwpr_pubkey_path"
+                                id="<?php echo esc_attr($uniqueid); ?>_pubkey_path"
+                                value="<?php echo esc_attr($paths['public_key']); ?>"
+                                class="regular-text"
+                            />
+                        </th>
+                        <td>
+                            <?php
+                            submit_button(
+                                __('Update public key path.', 'avcwpr'),
+                                'secondary',
+                                $uniqueid . '_update',
+                                false
+                            );
+                            ?>
+                        </td>
+                    </tr>
+                </table>
+                <p style="margin-top: 0;">
+                    <?php
+                    esc_html_e('Note that changing the public key path does not move the file for you.', 'avcwpr');
+                    ?>
+                </p>
+                <?php
+                $pathsection = (string)ob_get_clean();
+                ob_start();
+                ?>
+                <div style="margin-top: 1rem;">
+                    <input type="hidden" name="avcwpr_jwt_unique_id" value="<?php echo esc_attr($uniqueid); ?>" />
+                    <?php
+                    submit_button(
+                        sprintf(__('Delete %s', 'avcwpr'), esc_html($uniqueid)),
+                        'primary',
+                        $uniqueid . '_delete',
+                        false
+                    );
+                    ?>
+                    <p>
+                        <?php
+                        esc_html_e(
+                            'Note that deleting the key pair does not automatically remove the public key file.',
+                            'avcwpr'
+                        );
+                        ?>
+                    </p>
+                </div>
+                <?php
+                $dsection = (string)ob_get_clean();
+                ?>
+                <div style="margin-bottom: 2rem;">
+                    <h1><?php echo esc_html($uniqueid); ?></h1>
+                    <hr>
+                    <!-- <div style="margin-bottom: 1rem;"></div> -->
+                    <?php
+                    echo $this->router->createPostForm(
+                        '/avcwpr/updatePubKeyPath',
+                        $this->getPageUrl(),
+                        $pathsection
+                    );
+                    ?>
+                    <textarea
+                        style="height: 300px; max-width: 600px; width: 100%;"
+                        class="avcwpr_public_key"
+                    ><?php echo trim($pubkey); ?></textarea>
+                    <?php
+                    echo $this->router->createPostForm(
+                        '/avcwpr/deleteKeyPair',
+                        $this->getPageUrl(),
+                        $dsection
+                    );
+                    ?>
+                </div>
                 <?php
             }
             ?>
@@ -250,5 +336,53 @@ class SettingsPage
         header("Content-Disposition: attachment; filename={$zipname}");
         echo $zipdata;
         exit;
+    }
+
+    /**
+     * Updates the public key path for a JWT key pair
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return void
+     */
+    public function updatePubKeyPath() {
+        if (empty((string)$_POST['avcwpr_pubkey_path'])) {
+            return;
+        }
+        if (empty((string)$_POST['avcwpr_jwt_unique_id'])) {
+            return;
+        }
+
+        $jwtkey = sanitize_key((string)$_POST['avcwpr_jwt_unique_id']);
+        $pubpath = sanitize_text_field((string)$_POST['avcwpr_pubkey_path']);
+
+        $opts = $this->getOpts();
+        if (!isset($opts[self::JWTKEYS_OPT][$jwtkey])) {
+            return;
+        }
+
+        $opts[self::JWTKEYS_OPT][$jwtkey]['public_key'] = $pubpath;
+        update_option($this->optkey, $opts);
+    }
+
+    /**
+     * Deletes a JWT key pair
+     *
+     * @author Evan D Shaw <evandanielshaw@gmail.com>
+     * @return void
+     */
+    public function deleteKeyPair() {
+        if (empty((string)$_POST['avcwpr_jwt_unique_id'])) {
+            return;
+        }
+
+        $jwtkey = sanitize_key((string)$_POST['avcwpr_jwt_unique_id']);
+
+        $opts = $this->getOpts();
+        if (!isset($opts[self::JWTKEYS_OPT][$jwtkey])) {
+            return;
+        }
+
+        unset($opts[self::JWTKEYS_OPT][$jwtkey]);
+        update_option($this->optkey, $opts);
     }
 }
