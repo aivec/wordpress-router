@@ -1,0 +1,34 @@
+{
+  "name": "aivec/wordpress-router-demo",
+  "require": {
+    "aivec/wordpress-router": "^7.3"
+  },
+  "require-dev": {
+    "coenjacobs/mozart": "^0.7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "DEMO\\": "dist/DEMO",
+      "Aivec\\WordPressRouterDemo\\": "src/"
+    }
+  },
+  "extra": {
+    "mozart": {
+      "dep_namespace": "DEMO\\",
+      "dep_directory": "/dist/DEMO/",
+      "classmap_directory": "/dist/classes/",
+      "classmap_prefix": "DEMO_",
+      "packages": [
+        "aivec/wordpress-router"
+      ],
+      "delete_vendor_directories": false
+    }
+  },
+  "scripts": {
+    "build": [
+      "@composer install",
+      "./vendor/bin/mozart compose",
+      "@composer install --no-dev"
+    ]
+  }
+}

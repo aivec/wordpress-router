@@ -1,146 +1,272 @@
 # WordPress REST Router
-This package provides a routing library for WordPress with WordPress specific wrappers such as nonce verification and admin role checking. The backbone of this package uses [FastRoute](https://github.com/nikic/FastRoute), a small and succinct route resolver. `FastRoute` is also the route resolver used by the popular micro-framework [Slim](http://www.slimframework.com/).
+
+This package provides a routing library for WordPress with WordPress specific wrappers such as nonce verification and user role checking. The backbone of this package uses [FastRoute](https://github.com/nikic/FastRoute), a small and succinct route resolver. `FastRoute` is also the route resolver used by the popular micro-framework [Slim](http://www.slimframework.com/).
 
 ## The Problem
-Routing in WordPress is a pain for plugin authors. It relies solely on `$_POST` object keys to resolve routes if you go with their traditional way of registering AJAX handlers via `admin-ajax.php`. You could use WordPress' relatively new [REST APIs](https://developer.wordpress.org/rest-api/), but I've foregone that option because you don't have control of *when* routes are resolved. This is important to developers who create extensions for other plugins where the load order is out of their control. This package also differs from WordPress' implementation in that it doesn't provide `validate` and `sanitize` callbacks, opting instead for generic middleware handling.
+
+Routing in WordPress is a pain for plugin authors. It relies solely on `$_POST` object keys to resolve routes if you go with WordPress' traditional way of registering AJAX handlers via `admin-ajax.php`. You could use WordPress' [REST APIs](https://developer.wordpress.org/rest-api/), but you don't have control of _when_ routes are resolved. This is important to developers who create extensions for other plugins where the load order is out of their control. This package also differs from WordPress' implementation in that it doesn't provide `validate` and `sanitize` callbacks, opting instead for generic middlewares.
+
+## Features
+
+This library provides many features to streamline the provisioning of routes, as well as some optional default middlewares. The main features are as follows:
+
+- Role based route registration (editor, administrator, etc.)
+- Automatic nonce verification
+- URL parameters (**NOT REJEX** :grin:)
+- Passthru routing (non-AJAX routes)
+- Helpers for generating HTML forms
+- JWT route registration
+- JWT settings page for automatic key pair generation
 
 ## Installation
+
 Install with [composer](https://getcomposer.org/):
+
 ```sh
 $ composer require aivec/wordpress-router
 ```
-If you plan on using this package in a plugin, I *highly* recommend namespacing it with [mozart](https://github.com/coenjacobs/mozart). If you don't, things may break in an impossible to debug way. [You have been warned](https://wptavern.com/a-narrative-of-using-composer-in-a-wordpress-plugin).
 
-## A Short Example
-Lets add a public route:
+If you plan on using this package in a plugin, we _highly_ recommend namespacing it with [mozart](https://github.com/coenjacobs/mozart). If you don't, things may break in an impossible to debug way. [You have been warned](https://wptavern.com/a-narrative-of-using-composer-in-a-wordpress-plugin).
+
+## Usage Guide
+
+- [Public Route](#public-route)
+  - [Calling the Public Route](#calling-the-public-route)
+- [Private Route](#private-route)
+  - [Calling the Private Route](#calling-the-private-route)
+- [URL Parameters](#url-parameters)
+- [Form Data](#form-data)
+- [Making Everything Easier](#making-everything-easier)
+
+## Public Route
+
+A public route refers to a route without nonce verification. A public route is accessible by anyone, from anywhere.
+
 ```php
-class Routes extends Aivec\WordPress\Routing\Router {
-    protected function declareRoutes($r) {
-        $this->addPublicRoute($r, 'POST', '/brownies/{flavor}', function ($args) {
-            return 'I like ' . $args['flavor'] . ' brownies';
+use Aivec\WordPress\Routing\Router;
+use Aivec\WordPress\Routing\WordPressRouteCollector;
+
+// First, we declare our routes by extending the `Router` class:
+class Routes extends Router {
+
+    /**
+     * This is where we define each route
+     */
+    public function declareRoutes(WordPressRouteCollector $r) {
+        $r->addPublicRoute('GET', '/hamburger', function () {
+            return 'Here is a public hamburger.';
         });
     }
 }
 
-add_action('init', function () {
-    $routes = new Routes('/mynamespace/api/v1', 'nonce-key', 'nonce-name')
-});
+// Next, we instantiate the `Routes` class with a unique namespace and listen for requests
+$routes = new Routes('/mynamespace');
+$routes->dispatcher->listen();
 ```
-Now test the route:
+
+### Calling the Public Route
+
+You can test the route from the command line, like so:
+
 ```sh
-$ curl -X POST my-site.com/mynamespace/api/v1/brownies/chocolate
-'I like chocolate brownies'
+$ curl -X GET http://www.my-site.com/mynamespace/hamburger
+'Here is a public hamburger.'
 ```
 
-## Usage
-### Creating Routes
-Routes can be created by overriding the `declareRoutes` method of the `Router` class:
-```php
-class Routes extends Aivec\WordPress\Routing\Router {
-    protected function declareRoutes($r) {
-        // all routes go here
+Or, you can use `jQuery`'s `ajax` function to send a request from a script loaded into a WordPress page:
 
-        /*
-         * addRoute adds a route that includes nonce verification.
-         * 
-         * By default, addRoute creates an AJAX route. An AJAX route expects a value 
-         * to be returned by the callable. If the value returned is not empty,
-         * addRoute will die with the result:
-         * 
-         * die('this is a cake')
-         * 
-         * If nothing is returned or the return value is empty, die(0) will be called
-         */
-        $this->addRoute($r, 'GET', '/getcake/withnonce', function ($args) {
-            return 'this is a cake';
-        });
+```js
+jQuery.ajax("http://www.my-site.com/mynamespace/hamburger", {
+  success(data) {
+    var response = JSON.parse(data);
 
-        /* 
-         * addPublicRoute adds a route that can be accessed by anybody
-         */
-        $this->addPublicRoute($r, 'POST', '/makeAjaxCake/{cakeFlavor}', function ($args) {
-            return 'heres a ' . $args['cakeFlavor'] . ' flavored cake';
-        });
-
-        /*
-         * POST routes can also be declared. POST routes are the same as AJAX
-         * routes except that the nonce verification is for POST requests and
-         * the handler does not do anything with the return value.
-         */
-        $this->addPostRoute($r, ['PUT', 'POST'], '/makePostCake/withnonce', function ($args) {
-            // some database operation...
-        });
-
-        /*
-         * public POST routes are also declarable
-         */
-        $this->addPublicPostRoute($r, 'POST', '/makePostCake/{cakeFlavor}', function ($args) {
-            // some database operation...
-        });
-
-        /*
-         * Route groups can also be added
-         */
-        $this->addGroup($r, '/candy', function ($r) {
-            $this->addRoute($r, 'GET', '/bubblegum', function ($args) {
-                return 'Im the /candy/bubblegum route';
-            });
-            $this->addRoute($r, 'GET', '/airheads', function ($args) {
-                return 'Im the /candy/airheads route';
-            });
-        });
-        
-        /*
-         * An array of middleware callables that run before and after route invokation
-         * can be passed in as arguments
-         *
-         * The final result is 'Im the /airheads route modified'
-         *
-         * NOTE: you can easily stop propagation in your middleware function
-         * by calling die()
-         */
-        $this->addPublicRoute($r, 'GET', '/airheads', function ($args) {
-            return 'Im the /airheads route';
-        }, [
-            function ($args) {
-                // do some validation
-            },
-        ],
-        [
-            function ($res, $args) {
-                return $res . ' modified';
-            },
-        ]);
-    }
-}
-```
-Detailed information about how routes are resolved can be found [here](https://github.com/nikic/FastRoute#defining-routes).
-
-After creating your routes, instantiate the class with your route namespace:
-```php
-/*
- * WARNING: you MUST instantiate the class sometime after WordPress core functions are
- * loaded ('plugins_loaded', 'init', etc.).
- */
-add_action('init', function () {
-    // 'routegroup' can be any route of your choice. 'nonce-key' and 'nonce-name' are also arbitrary.
-    $routes = new Routes('/routegroup', 'nonce-key', 'nonce-name')
+    console.log(response); // Here is a public hamburger.
+  },
 });
 ```
 
-### HTML Forms
-Nonce-included HTML forms can be created for a route:
+## Private Route
+
+A private route refers to a route with nonce verification.
+
 ```php
-$form = $routes->createPostForm(
-    'https://my-site.com/routegroup/makePostCake/strawberry', // the route
-    '<input type="hidden" name="myFormField" value="myFormValue" />', // the inner-html for the form
-    'post', // the form request type ('post', 'put', etc.)
-    'myformid' // OPTIONAL: id of form
-)
+use Aivec\WordPress\Routing\Router;
+use Aivec\WordPress\Routing\WordPressRouteCollector;
+
+// First, extend the `Router` class:
+class Routes extends Router {
+
+    /**
+     * This is where we define each route
+     */
+    public function declareRoutes(WordPressRouteCollector $r) {
+        /**
+         * `add` is the default way to register a route with nonce verification
+         */
+        $r->add('POST', '/hamburger', function () {
+            return 'Here is a private hamburger.';
+        });
+    }
+}
+
 ```
 
-## Contributing
-### Why is the `dist` directory version controlled?
-Because this library packages a namespaced version of `FastRoute`, and the tool for accomplishing this, [mozart](github.com/coenjacobs/mozart), cannot do it automatically.
+After declaring our routes, we instantiate the `Routes` class with a unique namespace.
 
-Long answer: when this library is included as a composer dependency in another project that uses `mozart`, `mozart` will attempt to recursively namespace this package, *as well as this packages dependencies*. In this case, that dependency is `FastRoute`. Even though `mozart` can successfully bundle certain packages without any manual tweaks, unfortunately `FastRoute` is not one such package. Because of this, we have to package an already bundled version of `FastRoute` and make sure that our `composer.json` does not include an autoload reference to it. Only then is it possible to require this package from another plugin/package that uses `mozart` without any manual changes.
+This time, we pass in a nonce key and nonce name as the second and
+third argument, respectively.
+
+Since nonce handling requires WordPress core functions, we must instantiate the `Routes`
+class after core functions have been loaded. You can use the `init` hook, or any other
+appropriate hook to ensure core functions are loaded.
+
+```php
+$routes = null;
+add_action('init', function () use ($routes) {
+    $routes = new Routes('/mynamespace', 'nonce-key', 'nonce-name');
+    $routes->dispatcher->listen();
+});
+```
+
+### Calling the Private Route
+
+In general, private routes are called via AJAX from a JavaScript file on the WordPress site. To do this, we must make the nonce available to the script in which we want to call the route.
+
+Leveraging `wp_localize_script`, we can use a helper method from the `Routes` class to inject the nonce variables:
+
+```php
+
+add_action('wp_enqueue_scripts', function () use ($routes) {
+    wp_enqueue_script(
+        'my-script',
+        site_url() . '/wp-content/plugins/my-plugin/my-script.js',
+        [],
+        '1.0.0',
+        false
+    );
+
+    wp_localize_script('my-script', 'myvars', $routes->getScriptInjectionVariables());
+});
+```
+
+Now, `my-script.js` will have the nonce variables we need to make the call.
+
+```js
+// my-script.js
+jQuery.ajax(`${myvars.endpoint}/hamburger`, {
+  method: "POST",
+  data: {
+    [myvars.nonceKey]: myvars.nonce,
+  },
+  success(data) {
+    var response = JSON.parse(data);
+
+    console.log(response); // Here is a private hamburger.
+  },
+});
+```
+
+## URL Parameters
+
+Curly braces are used to define a URL parameter.
+
+URL parameters are parsed and then inserted into an `$args` variable, which is always the _first_ parameter given to the handler function.
+
+```php
+$r->add('POST', '/hamburger/{burgername}', function (array $args) {
+    return 'Here is a ' . $args['burgername'] . ' hamburger.';
+});
+```
+
+```js
+// my-script.js
+jQuery.ajax(`${myvars.endpoint}/hamburger/mushroom`, {
+  method: "POST",
+  data: {
+    [myvars.nonceKey]: myvars.nonce,
+  },
+  success(data) {
+    var response = JSON.parse(data);
+
+    console.log(response); // Here is a mushroom hamburger.
+  },
+});
+```
+
+You can define as many parameters as you want.
+
+```php
+$r->add('POST', '/hamburger/{burgername}/{count}', function (array $args) {
+    return 'Here are ' . $args['count'] . ' ' . $args['burgername'] . ' hamburgers.';
+});
+```
+
+You can also limit the type of parameter accepted, as well as provide your own patterns for more granular control.
+
+```php
+// Matches /user/42, but not /user/xyz
+$r->add('POST', '/user/{id:\d+}', .....);
+
+// Matches /user/foobar, but not /user/foo/bar
+$r->add('GET', '/user/{name}', .....);
+
+// Matches /user/foo/bar as well
+$r->add('GET', '/user/{name:.+}', .....);
+```
+
+There are many possibilities for route definitions. For detailed information about how routes are resolved, refer [here](https://github.com/nikic/FastRoute#defining-routes).
+
+## Form Data
+
+The router expects `POST` requests to be sent with a content type of `application/x-www-form-urlencoded`. Form data is sent as a JSON encoded string as the value of a `payload` key in the body of the request.
+
+```php
+// $payload contains the decoded JSON key-value array
+$r->add('POST', '/hamburger', function (array $args, array $payload) {
+    $ingredients = join(' and ', $payload['ingredients']);
+    return 'I want ' . $ingredients . ' on my hamburger.';
+});
+```
+
+```js
+// my-script.js
+jQuery.ajax(`${myvars.endpoint}/hamburger`, {
+  method: "POST",
+  data: {
+    [myvars.nonceKey]: myvars.nonce,
+    payload: JSON.stringify({
+      ingredients: ["pickles", "onion"],
+    }),
+  },
+  success(data) {
+    var response = JSON.parse(data);
+
+    console.log(response); // I want pickles and onion on my hamburger.
+  },
+});
+```
+
+## Making Everything Easier
+
+As we've seen above, private routes require a nonce key-value pair to be present in the body of a `POST` request. You may have noticed that we excluded `GET` requests in those examples. This is because `GET` requests don't have body content, which means that the nonce variables must be set as URL query parameters. This whole process is tedious, and we can do better.
+
+For people transpiling their JavaScript, we recommend using [axios](https://github.com/axios/axios) with our [helper library](https://github.com/aivec/reqres-utils). This completely abstracts nonce handling and JSON encoding, as well as automatically setting nonce variables in the request regardless of the request method (`GET`, `POST`, `PUT`, etc.).
+
+The following is the [Form Data](#form-data) example, rewritten using these libraries:
+
+```js
+// my-script.js
+import axios from "axios";
+import { createRequestBody } from "@aivec/reqres-utils";
+
+axios
+  .post(
+    `${myvars.endpoint}/hamburger`,
+    createRequestBody(myvars, {
+      ingredients: ["pickles", "onion"],
+    })
+  )
+  .then(({ data }) => {
+    console.log(data);
+  });
+```

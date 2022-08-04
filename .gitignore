@@ -1,1 +1,5 @@
-/vendor/
+vendor
+node_modules
+demo/**/composer.lock
+demo/**/package-lock.json
+demo/**/dist

@@ -1,0 +1,13 @@
+{
+  "name": "demo-plugin",
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {
+    "@aivec/reqres-utils": "^6.1.0",
+    "axios": "^0.27.2"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.10.0"
+  }
+}

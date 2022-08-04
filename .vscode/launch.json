@@ -5,12 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "XDebug aivec/codecept-docker",
+      "name": "XDebug aivec/wordpress-router",
       "type": "php",
       "request": "launch",
       "port": 9900,
       "pathMappings": {
         "/var/www/html/wp-content/plugins/wordpress-router": "${workspaceFolder}",
+        "/var/www/html/wp-content/plugins/demo-plugin": "${workspaceFolder}/demo/demo-plugin",
         "/var/www/html/wp-content/plugins/implementation-plugin": "${workspaceFolder}/tests/implementation-plugin"
       }
     },
