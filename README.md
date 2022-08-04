@@ -4,7 +4,7 @@ This package provides a routing library for WordPress with WordPress specific wr
 
 ## The Problem
 
-Routing in WordPress is a pain for plugin authors. It relies solely on `$_POST` object keys to resolve routes if you go with WordPress' traditional way of registering AJAX handlers via `admin-ajax.php`. You could use WordPress' [REST APIs](https://developer.wordpress.org/rest-api/), but you don't have control of _when_ routes are resolved. This is important to developers who create extensions for other plugins where the load order is out of their control. This package also differs from WordPress' implementation in that it doesn't provide `validate` and `sanitize` callbacks, opting instead for generic middlewares.
+Routing in WordPress is a pain for plugin authors. It relies solely on `$_POST` object keys to resolve routes if you go with WordPress' traditional way of registering AJAX handlers via `admin-ajax.php`. You could use WordPress' [REST API](https://developer.wordpress.org/rest-api/), but you don't have control of _when_ routes are resolved. This is important to developers who create extensions for other plugins where the load order is out of their control. This package also differs from WordPress' implementation in that it doesn't provide `validate` and `sanitize` callbacks, opting instead for generic middlewares.
 
 ## Features
 
@@ -12,7 +12,7 @@ This library provides many features to streamline the provisioning of routes, as
 
 - Role based route registration (editor, administrator, etc.)
 - Automatic nonce verification
-- URL parameters (**NOT REJEX** :grin:)
+- URL parameters (**NOT REGEX** :grin:)
 - Passthru routing (non-AJAX routes)
 - Helpers for generating HTML forms
 - JWT route registration
