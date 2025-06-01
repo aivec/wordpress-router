@@ -467,7 +467,7 @@ class WordPressRouteCollector extends RouteCollector
     public function getJsonPayload() {
         $body = isset($_REQUEST['payload']) ? $_REQUEST['payload'] : null;
         if (empty($body)) {
-            $body = null;
+            return [];
         }
         $payload = json_decode($body, true);
         if ($payload === null) {
